@@ -1,0 +1,17 @@
+{
+  "name": "pauseverify",
+  "private": true,
+  "packageManager": "pnpm@10.26.2",
+  "engines": { "node": ">=24 <25", "pnpm": ">=10" },
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "test": "turbo test"
+  },
+  "devDependencies": {
+    "turbo": "^2.6.0",
+    "typescript": "^5.9.0"
+  }
+}
