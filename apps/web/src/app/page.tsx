@@ -57,6 +57,37 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="border-t border-border bg-subtle">
+        <div className="container-page grid gap-10 py-20 lg:grid-cols-[1fr_1.3fr] lg:items-center">
+          <div>
+            <h2 className="text-balance font-display text-[34px] font-semibold leading-tight sm:text-[42px]">Speaks the Northeast</h2>
+            <p className="mt-4 max-w-md text-lg leading-relaxed text-secondary-fg">
+              Scams don’t only arrive in English. Every warning, explanation and answer is available in seven Northeast languages — including low-resource ones like Bodo, Khasi and Mizo that big apps leave out — through Bhashini, the Government of India’s language platform.
+            </p>
+            <p className="mt-4 text-sm text-muted-foreground">Read-aloud in English, Hindi, Assamese, Bodo, Bengali and Nepali, for people who find reading hard.</p>
+          </div>
+          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {[
+              ["অসমীয়া", "Assamese", "Assam"],
+              ["बड़ो", "Bodo", "Assam · BTR"],
+              ["ꯃꯤꯇꯩꯂꯣꯟ", "Manipuri", "Manipur"],
+              ["Khasi", "Khasi", "Meghalaya"],
+              ["Mizo", "Mizo", "Mizoram"],
+              ["नेपाली", "Nepali", "Sikkim"],
+              ["বাংলা", "Bengali", "Tripura · Barak"],
+              ["हिन्दी", "Hindi", "Across India"],
+              ["English", "English", "Everywhere"],
+            ].map(([native, name, where]) => (
+              <li key={name} className="rounded-[20px] bg-background p-5 shadow-card">
+                <p className="font-display text-2xl font-semibold leading-tight" lang="und">{native}</p>
+                <p className="mt-2 text-sm font-medium">{name}</p>
+                <p className="text-xs text-muted-foreground">{where}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
       <section id="how" className="scroll-mt-24 border-t border-border">
         <div className="container-page py-20">
           <h2 className="font-display text-[34px] font-semibold leading-tight sm:text-[42px]">How it works</h2>

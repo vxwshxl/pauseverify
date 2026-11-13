@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useSyncExternalStore } from "react";
-import { createServices, fetchPost } from "@pv/island";
+import { LANG_NAMES, createServices, fetchPost } from "@pv/island";
 import type { Analysis, Lang } from "@pv/engine";
 
 export const services = createServices(fetchPost(""));
@@ -10,7 +10,7 @@ const KEY = "pv-lang";
 const listeners = new Set<() => void>();
 const read = (): Lang => {
   const v = typeof localStorage === "undefined" ? null : localStorage.getItem(KEY);
-  return v === "as" || v === "brx" || v === "hi" ? v : "en";
+  return v && (Object.keys(LANG_NAMES) as string[]).includes(v) ? (v as Lang) : "en";
 };
 
 export function useLang() {

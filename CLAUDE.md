@@ -17,6 +17,13 @@ Hackathon project (PS05 anti-scam assistant). pnpm + Turborepo monorepo — a se
   scoring in `packages/engine` so it stays instant, offline and testable (`pnpm --filter @pv/engine test`).
 - **Bhashini translates "scam" as "calendar" in Assamese.** `server/bhashini.ts` rewrites
   scam→fraud before translating. Keep it.
+- **Languages:** English, Hindi + 7 Northeast languages Bhashini serves (as, brx, bn, mni, ne, kha, lus;
+  checked 2026-11-14 — Garo and Kokborok are not available). Translation into/out of Manipuri must use
+  the AI4Bharat model (IIIT-H returns Bengali-script nonsense) and its output needs `fixMeitei`.
+  Read-aloud exists only for en, hi, as, brx, bn, ne (`SPEAKABLE`, kept in sync in island + server).
+  Meitei Mayek needs the bundled Noto Sans Meetei Mayek font (web public/ and extension public/).
+- **The scanner separates paragraphs with "\n"** when joining a block's text; gluing them made
+  "…appear." + "Live demo" read as the link `appear.live` (a false alarm).
 - **Sarvam needs `reasoning_effort: null`** or short answers come back empty.
 - **Typed chat questions go to the AI first**; canned answers (`answers.ts`) are only for the
   suggestion chips and as offline fallback. Regex-matching free text gave wrong answers.

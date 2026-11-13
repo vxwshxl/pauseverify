@@ -12,7 +12,8 @@ export default defineContentScript({
 
     // Fonts must be declared on the page (shadow roots inherit @font-face, not define it).
     const font = document.createElement("style");
-    font.textContent = `@font-face { font-family: "Instrument Sans"; src: url("${browser.runtime.getURL("/fonts/InstrumentSans-Variable.woff2")}") format("woff2"); font-weight: 400 700; font-display: swap; }`;
+    font.textContent = `@font-face { font-family: "Instrument Sans"; src: url("${browser.runtime.getURL("/fonts/InstrumentSans-Variable.woff2")}") format("woff2"); font-weight: 400 700; font-display: swap; }
+      @font-face { font-family: "Noto Sans Meetei Mayek"; src: url("${browser.runtime.getURL("/fonts/NotoSansMeeteiMayek.woff2")}") format("woff2"); font-weight: 400 700; unicode-range: U+ABC0-ABFF, U+AAE0-AAFF; }`;
     document.head.append(font);
 
     const ui = await createShadowRootUi<Root>(ctx, {

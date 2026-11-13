@@ -3,6 +3,11 @@
   src: url("/fonts/InstrumentSans-Variable.woff2") format("woff2");
   font-weight: 400 700;
 }
+@font-face {
+  font-family: "Noto Sans Meetei Mayek";
+  src: url("/fonts/NotoSansMeeteiMayek.woff2") format("woff2");
+  font-weight: 400 700;
+}
 html, body { margin: 0; background: #fff; color-scheme: light; }
 body { width: 340px; }
 .pp { padding: 18px; }

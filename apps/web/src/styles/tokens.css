@@ -181,7 +181,7 @@
 
   /* Type — faces come from next/font via --font-* on <html> */
   --font-display: var(--font-display), ui-sans-serif, system-ui, sans-serif;
-  --font-sans:    var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-sans:    var(--font-geist-sans), ui-sans-serif, system-ui, "Noto Sans Meetei Mayek", sans-serif;
   --font-mono:    var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
 
   /* Radius — rounded-sm … rounded-xl (§12) */

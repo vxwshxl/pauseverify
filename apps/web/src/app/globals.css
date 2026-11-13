@@ -1,6 +1,15 @@
 @import "../styles/tokens.css";
 @import "@pv/island/island.css";
 
+/* Meitei Mayek (Manipuri) is missing from most system fonts. */
+@font-face {
+  font-family: "Noto Sans Meetei Mayek";
+  src: url("/fonts/NotoSansMeeteiMayek.woff2") format("woff2");
+  font-weight: 400 700;
+  font-display: swap;
+  unicode-range: U+ABC0-ABFF, U+AAE0-AAFF;
+}
+
 @layer base {
   h1, h2, h3, .font-display {
     font-family: var(--font-display);

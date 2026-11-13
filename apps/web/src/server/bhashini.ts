@@ -2,7 +2,19 @@ import "server-only";
 import type { Lang } from "@pv/engine";
 
 // Bhashini (Government of India) Dhruva pipeline — same endpoint and models okhrang uses.
-const NMT = "bhashini/iiith/nmt-all";
+// Model per language pair, as measured (okhrang 2026-09-17, re-checked 2026-11-14):
+// IIIT-H serves Khasi and Mizo and most pairs; only AI4Bharat translates into
+// Manipuri (Meitei Mayek) correctly — IIIT-H returns unrelated Bengali-script text.
+const IIITH = "bhashini/iiith/nmt-all";
+const AI4B = "ai4bharat/indictrans-v2-all-gpu--t4";
+const serviceFor = (from: Lang, to: Lang) => (from === "mni" || to === "mni" ? AI4B : IIITH);
+
+/** Languages Bhashini can read aloud with usable audio. Khasi and Mizo have no voice;
+ *  Manipuri in Meitei Mayek comes back as a near-empty clip. */
+export const SPEAKABLE: Lang[] = ["en", "hi", "as", "brx", "bn", "ne"];
+
+/** AI4Bharat puts spaces around the Meitei virama and before the full stop, breaking conjuncts. */
+const fixMeitei = (t: string) => t.replace(/\s*\uABED\s*/g, "\uABED").replace(/\s+\uABEB/g, "\uABEB");
 const TTS = "Bhashini/IITM/TTS";
 
 type Pipeline = { pipelineResponse?: { output?: { target?: string }[]; audio?: { audioContent?: string }[] }[] };
@@ -55,14 +67,15 @@ export async function translate(texts: string[], from: Lang, to: Lang): Promise<
     const batch = missing.slice(i, i + 25);
     const data = await call(
       {
-        pipelineTasks: [{ taskType: "translation", config: { language: { sourceLanguage: from, targetLanguage: to }, serviceId: NMT } }],
+        pipelineTasks: [{ taskType: "translation", config: { language: { sourceLanguage: from, targetLanguage: to }, serviceId: serviceFor(from, to) } }],
         inputData: { input: batch.map(({ t }) => ({ source: from === "en" ? translatable(t) : t })) },
       },
       20_000,
     );
     const got = data.pipelineResponse?.[0]?.output ?? [];
     batch.forEach(({ t, i: idx }, j) => {
-      const target = got[j]?.target?.trim() || t;
+      const raw = got[j]?.target?.trim() || t;
+      const target = to === "mni" ? fixMeitei(raw) : raw;
       out[idx] = target;
       if (cache.size >= CACHE_MAX) cache.delete(cache.keys().next().value!);
       cache.set(`${from}>${to}:${t}`, target);

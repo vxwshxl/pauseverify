@@ -36,7 +36,12 @@ export interface IslandProps {
   alwaysAlert?: boolean;
 }
 
-export const LANG_NAMES: Record<Lang, string> = { en: "English", as: "অসমীয়া", brx: "बड़ो", hi: "हिन्दी" };
+// Native names. Seven Northeast languages, all served by Bhashini.
+export const LANG_NAMES: Record<Lang, string> = {
+  en: "English", hi: "हिन्दी", as: "অসমীয়া", brx: "बड़ो", bn: "বাংলা", mni: "ꯃꯤꯇꯩꯂꯣꯟ", ne: "नेपाली", kha: "Khasi", lus: "Mizo",
+};
+/** Bhashini has a usable voice for these; the read-aloud button hides for the rest. */
+export const SPEAKABLE: Lang[] = ["en", "hi", "as", "brx", "bn", "ne"];
 
 const FLAG_ICON: Record<Flag["kind"], typeof Clock> = {
   urgency: Clock,
@@ -314,7 +319,7 @@ function Sheet({ analysis, onAsk, onLook, onClose, translate, speak, stopSpeakin
           <div className="pv-pill-title">Pause &amp; Verify</div>
           <div className="pv-pill-sub">{loading ? t("Translating…") : t("Checked on your device")}</div>
         </div>
-        {speak && (
+        {speak && SPEAKABLE.includes(lang) && (
           <button type="button" className="pv-icon-btn" onClick={readAloud} aria-pressed={speaking} aria-label={speaking ? t("Stop") : t("Read aloud")} title={speaking ? t("Stop") : t("Read aloud")} data-active={speaking}>
             {speaking ? <Square /> : <Volume2 />}
           </button>

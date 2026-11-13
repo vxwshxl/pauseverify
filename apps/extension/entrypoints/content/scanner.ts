@@ -6,6 +6,8 @@ import { analyze, type Analysis } from "@pv/engine";
 const SKIP = new Set(["SCRIPT", "STYLE", "NOSCRIPT", "TEXTAREA", "INPUT", "SELECT", "CODE", "PRE", "SVG", "MATH"]);
 const BLOCK = "p,li,td,th,blockquote,article,h1,h2,h3,h4,h5,h6,dd,dt,figcaption,div";
 const MAX_BLOCKS = 1500;
+// Block elements, plus controls whose labels are separate pieces of text.
+const BLOCK_OR_BREAK = BLOCK + ",label,button";
 
 export interface Found {
   block: Element;
@@ -40,13 +42,20 @@ export function scan(host: Element): Found[] {
   const found: Found[] = [];
   for (const block of blocks) {
     const nodes = textNodes(block, host);
+    // Text from different paragraphs is joined with a line break, never glued together:
+    // "…they appear." + "Live demo…" must not read as the link "appear.live".
     let at = 0;
+    let text = "";
+    let prevBlock: Element | null = null;
     const map = nodes.map((node) => {
+      const nb = node.parentElement!.closest(BLOCK_OR_BREAK);
+      if (prevBlock && nb !== prevBlock) { text += "\n"; at += 1; }
+      prevBlock = nb;
       const m = { node, start: at };
+      text += node.data;
       at += node.data.length;
       return m;
     });
-    const text = nodes.map((n) => n.data).join("");
     if (text.length < 20 || text.length > 4000) continue;
     const hit = cache.get(block);
     if (hit && hit.text === text) {

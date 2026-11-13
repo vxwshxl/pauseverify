@@ -33,7 +33,7 @@ export function limited(req: Request, route: string, perMinute: number) {
   return ++h.n > perMinute;
 }
 
-export const LANGS = ["en", "as", "brx", "hi"] as const;
+export const LANGS = ["en", "hi", "as", "brx", "bn", "mni", "ne", "kha", "lus"] as const;
 export function isLang(v: unknown): v is (typeof LANGS)[number] {
   return typeof v === "string" && (LANGS as readonly string[]).includes(v);
 }

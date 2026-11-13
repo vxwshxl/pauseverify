@@ -4,7 +4,7 @@
 
 Pause & Verify lives as a small island at the bottom of your browser. When a message tries to
 rush, scare or trick you, it underlines the warning signs in the message itself, explains them in
-plain language (English, অসমীয়া, बड़ो or हिन्दी), and shows a safe way to check. Built for
+plain language — English, Hindi and seven Northeast languages (Assamese, Bodo, Manipuri, Khasi, Mizo, Nepali, Bengali), and shows a safe way to check. Built for
 problem statement **PS05 — Smart Anti-Scam Assistant**.
 
 ## What it does
@@ -17,7 +17,7 @@ problem statement **PS05 — Smart Anti-Scam Assistant**.
 | **Reads QR codes exactly** | Decodes UPI QRs on the device: *"This QR sends ₹5,000 to refund.desk7@okaxis."* You never scan to receive money. |
 | **Looks at your screen** | Drag a box around anything (Alt+Shift+L). The cropped screenshot is read by a vision model, then judged by the same engine. |
 | **Explains and helps** | Plain-language reasons, step-by-step safe checks, the official app/site from a reviewed list, read-aloud, and a helper chat (Sarvam AI) for "I already clicked / shared my OTP / paid". |
-| **Speaks your language** | Every explanation and the chat in English, Assamese, Bodo and Hindi (Bhashini), with read-aloud. |
+| **Speaks the Northeast** | Every explanation and the chat in English, Hindi, Assamese, Bodo, Manipuri (Meitei Mayek), Khasi, Mizo, Nepali and Bengali via Bhashini — including low-resource languages — with read-aloud where Bhashini has a voice. |
 
 ## How it's built
 

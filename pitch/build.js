@@ -176,7 +176,7 @@ function pchip(pts, n) {
       T(s, big, { x: x + 0.16, y: 5.0, w: w - 0.2, h: 0.5, fontSize: i === 1 ? 19 : 21, bold: true, color: tc, valign: "middle" });
       T(s, cap, { x: x + 0.16, y: 5.55, w: w - 0.28, h: 0.7, fontSize: 10.5, color: tc });
     });
-    T(s, [{ text: "Why now   ", options: { bold: true, color: P.coralInk } }, { text: "reporting fast works — ₹5,489 cr already saved via 1930  ·  banks moved to .bank.in addresses  ·  AI now speaks Assamese and Bodo" }], { x: M, y: 6.43, w: CW, h: 0.24, fontSize: 12, color: P.text });
+    T(s, [{ text: "Why now   ", options: { bold: true, color: P.coralInk } }, { text: "reporting fast works — ₹5,489 cr already saved via 1930  ·  banks moved to .bank.in addresses  ·  AI now speaks Bodo, Khasi and Mizo" }], { x: M, y: 6.43, w: CW, h: 0.24, fontSize: 12, color: P.text });
     src(s, "Sources: MHA written reply, Lok Sabha, July 2025 (I4C: NCRP + CFCFRMS) · MHA/I4C digital-arrest data, Parliament reply 2025 · IAMAI–Kantar, Internet in India 2024. 1 crore = 10 million. Targets are ours.", false, 6.7);
     s.addNotes("60 seconds. ₹22,845 crore lost in 2024, up 206%. Digital arrest losses went from ₹91 crore to ₹1,936 crore in two years. 88.6 crore Indians are online, most of the growth rural and first-time. The pattern is always the same: urgency, fear, a tap, an OTP. Spam filters may block, but nobody explains why or tells you how to check.");
   }
@@ -198,7 +198,7 @@ function pchip(pts, n) {
       ["LuShieldAlert", "Pauses fake links", "Look-alike sites, links whose text says one site but go to another, and the .bank.in rule. Clicking a fake link pauses first."],
       ["LuQrCode", "Tells the truth about QRs", "Decodes UPI QRs on the device: “This QR sends ₹5,000”. You never scan a QR to receive money."],
       ["LuScanSearch", "Looks at anything", "Drag a box over a screenshot, poster or chat. Gemma vision reads it; the engine judges it."],
-      ["LuLanguages", "Assamese, Bodo, Hindi", "Every explanation and answer in four languages, read aloud for elders, through Bhashini."],
+      ["LuLanguages", "7 Northeast languages", "Assamese, Bodo, Manipuri, Khasi, Mizo, Nepali, Bengali, plus Hindi — low-resource languages included, through Bhashini."],
       ["LuLock", "Private by design", "Checks run in the browser. Only what you ask about leaves it, with OTPs and numbers masked."],
       ["LuMessageCircle", "Ask in your own words", "“I shared my OTP” → block, call 1930, change passwords. Sarvam AI, grounded in the check."],
     ];
@@ -212,14 +212,14 @@ function pchip(pts, n) {
     s.addImage({ path: A("card-sheet-qr.png"), x: 9.05, y: 2.15, w: 2.45, h: 2.45 / SHEET, objectName: "QR result sheet", altText: "Island sheet: This QR sends ₹5,000" });
     s.addImage({ path: A("card-sheet-as.png"), x: 10.45, y: 1.55, w: 2.45, h: 2.45 / SHEET, objectName: "Assamese sheet", altText: "Island sheet explaining a scam in Assamese" });
     src(s, "Sources: Pause & Verify prototype (engine tests: every scam sample high risk, genuine OTP and Amazon messages safe) · Bhashini (MeitY) · Sarvam AI · Gemma 3 (Google, open weights).", false, 6.62);
-    s.addNotes("60 seconds. The island watches quietly. When a message rushes, scares or asks for an OTP, it underlines the exact words, explains them in plain language and shows a safe way to check. It catches fake links before they open, tells you what a QR really pays, reads screenshots, and speaks Assamese, Bodo and Hindi. The decision is made on the device; AI only reads and explains.");
+    s.addNotes("60 seconds. The island watches quietly. When a message rushes, scares or asks for an OTP, it underlines the exact words, explains them in plain language and shows a safe way to check. It catches fake links before they open, tells you what a QR really pays, reads screenshots, and speaks seven Northeast languages, including Bodo, Khasi and Mizo. The decision is made on the device; AI only reads and explains.");
   }
 
   // ════ 4 · Business model & why we win ═════════════════════════════════
   pres.addSection({ title: "Business" });
   {
     const s = slide("Dark", "Business", "BUSINESS MODEL & WHY WE WIN", "Free for families. Banks, campuses and districts pay to protect the people they serve.");
-    const plans = [["Families", "₹0", "  forever", "Extension + web checker, four languages, read-aloud"], ["Banks & fintech", "₹2", "  / active user / month", "White-label in their app + scam-trend dashboard"], ["Campus & work", "₹99", "  / seat / year", "Admin dashboard, scam drills, reporting"], ["Govt & CSR", "₹5 L", "  / district / year", "Training, kiosks, 1930 tie-in"]];
+    const plans = [["Families", "₹0", "  forever", "Extension + web checker, nine languages, read-aloud"], ["Banks & fintech", "₹2", "  / active user / month", "White-label in their app + scam-trend dashboard"], ["Campus & work", "₹99", "  / seat / year", "Admin dashboard, scam drills, reporting"], ["Govt & CSR", "₹5 L", "  / district / year", "Training, kiosks, 1930 tie-in"]];
     const pw = (CW - 3 * 0.15) / 4;
     plans.forEach(([n, p, unit, d], i) => {
       const x = M + i * (pw + 0.15), hi = i === 1;
@@ -256,13 +256,13 @@ function pchip(pts, n) {
 
     T(s, "Why we win", { x: M + 6.2, y: 3.07, w: 5, h: 0.32, fontSize: 15, bold: true, color: P.coralLt });
     const wc = (t, head, us, j) => ({ text: t, options: { bold: head || us || j === 0, color: head ? "FFFFFF" : P.ink, fill: { color: head ? (us ? P.coral : P.panel2) : us ? P.soft : "FFFFFF" }, fontSize: 11, align: j === 0 ? "left" : "center", valign: "middle", margin: [0, 0.069, 0, 0.069] } });
-    const cmp = [["Says why it’s a scam", "No", "No", "In general", "Yes, quoting it"], ["Works where you read", "Calls, SMS", "SMS", "TV, radio", "Any site, WhatsApp Web"], ["Assamese and Bodo", "No", "Rarely", "Sometimes", "Yes, read aloud"], ["QR codes, screenshots", "No", "No", "No", "Exact UPI payee"], ["Fake links", "Some", "No", "No", "Paused before opening"]];
+    const cmp = [["Says why it’s a scam", "No", "No", "In general", "Yes, quoting it"], ["Works where you read", "Calls, SMS", "SMS", "TV, radio", "Any site, WhatsApp Web"], ["Northeast languages", "No", "Rarely", "Some", "7, incl. Khasi, Mizo"], ["QR codes, screenshots", "No", "No", "No", "Exact UPI payee"], ["Fake links", "Some", "No", "No", "Paused before opening"]];
     s.addTable([["", "Spam filters", "Bank SMS alerts", "Awareness ads", "Pause & Verify"].map((t, j) => wc(t, true, j === 4, j)), ...cmp.map((r) => r.map((t, j) => wc(t, false, j === 4, j)))], {
       x: M + 6.2, y: 3.45, w: CW - 6.2, colW: [1.5, 0.95, 1.0, 1.05, 1.43], rowH: 0.37, border: { type: "solid", pt: 0.75, color: P.line }, objectName: "comparison table",
     });
-    T(s, [{ text: "Hard to copy: ", options: { bold: true, color: P.coralLt } }, { text: "India-specific rules in four languages, a reviewed directory of real bank and government sites, and an engine that runs privately on the device." }], { x: M + 6.2, y: 5.8, w: CW - 6.2, h: 0.55, fontSize: 12, color: P.ltext });
+    T(s, [{ text: "Hard to copy: ", options: { bold: true, color: P.coralLt } }, { text: "India-specific rules in nine languages, including low-resource Northeast ones, a reviewed directory of real bank and government sites, and an engine that runs privately on the device." }], { x: M + 6.2, y: 5.8, w: CW - 6.2, h: 0.55, fontSize: 12, color: P.ltext });
     src(s, "Plans and unit economics are our estimates (AI, cloud, support; about ₹1.3 L to win and onboard a bank); columns are types of alternative, not specific products.", true);
-    s.addNotes("60 seconds. Families never pay. Banks pay ₹2 per active user a month to put Pause & Verify in their app — cheaper than one fraud claim. One bank with 50,000 active users brings ₹1 lakh a month and leaves ₹65,000. Watching is free to run because it happens on the device. Why we win: we're the only one that explains, in Assamese and Bodo, right where you read.");
+    s.addNotes("60 seconds. Families never pay. Banks pay ₹2 per active user a month to put Pause & Verify in their app — cheaper than one fraud claim. One bank with 50,000 active users brings ₹1 lakh a month and leaves ₹65,000. Watching is free to run because it happens on the device. Why we win: we're the only one that explains, in seven Northeast languages, right where you read.");
   }
 
   // ════ 5 · Implementation & financial plan ═════════════════════════════
@@ -319,7 +319,7 @@ function pchip(pts, n) {
   {
     const s = slide("Ink", "Close", "CONCLUSION", "");
     T(s, "Every Indian deserves a calm second opinion before they pay.", { x: M, y: 1.08, w: 7.9, h: 0.95, fontSize: 24, color: P.coralLt });
-    const sdg = [["00689D", "SDG 16", "Peace & Justice", "Fewer frauds, faster reports to 1930"], ["DD1367", "SDG 10", "Reduced Inequalities", "Assamese, Bodo, Hindi, read aloud"], ["FD6925", "SDG 9", "Industry & Innovation", "Private AI that runs on the device"], ["A21942", "SDG 8", "Decent Work & Growth", "Safer digital payments for all"]];
+    const sdg = [["00689D", "SDG 16", "Peace & Justice", "Fewer frauds, faster reports to 1930"], ["DD1367", "SDG 10", "Reduced Inequalities", "7 Northeast languages, read aloud"], ["FD6925", "SDG 9", "Industry & Innovation", "Private AI that runs on the device"], ["A21942", "SDG 8", "Decent Work & Growth", "Safer digital payments for all"]];
     sdg.forEach(([c, n, h, b], i) => {
       const x = M + i * 2.02, w = 1.88;
       box(s, x, 2.18, w, 0.9, c, { r: 0.08, name: n });
@@ -339,7 +339,7 @@ function pchip(pts, n) {
     T(s, [
       { text: "in three stages.", options: { breakLine: true } },
       { text: "₹8 lakh today", options: { bold: true, color: "FFFFFF" } }, { text: " reaches 50,000 people in Assam.", options: { breakLine: true } },
-      { text: "Why us: ", options: { bold: true, color: "FFFFFF" } }, { text: "the engine, the extension and four-language AI are built and working today." },
+      { text: "Why us: ", options: { bold: true, color: "FFFFFF" } }, { text: "the engine, the extension and nine-language AI are built and working today." },
     ], { x: 9.2, y: 2.58, w: 3.3, h: 2.15, fontSize: 12.5, color: P.ltext, paraSpaceAfter: 6 });
     box(s, M, 5.08, CW, 0.62, P.panel, { name: "vision strip" });
     T(s, [{ text: "By 2029   ", options: { bold: true, color: P.coralLt } }, { text: "1 crore users   ·   10 Indian languages   ·   10 partner banks   ·   one tap from the truth before every payment" }], { x: M + 0.3, y: 5.08, w: CW - 0.5, h: 0.62, fontSize: 15, color: "FFFFFF", valign: "middle" });
@@ -363,7 +363,7 @@ function pchip(pts, n) {
     T(s, "Explains in অসমীয়া", { x: 6.85, y: 4.55, w: cw, h: 0.28, fontSize: 12.5, bold: true, color: "FFFFFF", align: "center" });
     T(s, "Reads the QR", { x: 8.85, y: 4.55, w: cw, h: 0.28, fontSize: 12.5, bold: true, color: "FFFFFF", align: "center" });
     s.addImage({ path: A("mark.png"), x: 11.25, y: 1.75, w: 0.6, h: 0.6, objectName: "mark", altText: "" });
-    T(s, [{ text: "4 languages", options: { bold: true, color: "FFFFFF", fontSize: 18, breakLine: true } }, { text: "EN · অসমীয়া · बड़ो · हिन्दी", options: { color: P.ltext, fontSize: 11, breakLine: true } }, { text: " ", options: { breakLine: true } },
+    T(s, [{ text: "9 languages", options: { bold: true, color: "FFFFFF", fontSize: 18, breakLine: true } }, { text: "7 from the Northeast", options: { color: P.ltext, fontSize: 11, breakLine: true } }, { text: " ", options: { breakLine: true } },
       { text: "13 / 13", options: { bold: true, color: "FFFFFF", fontSize: 18, breakLine: true } }, { text: "engine tests pass", options: { color: P.ltext, fontSize: 11, breakLine: true } }, { text: " ", options: { breakLine: true } },
       { text: "~8 s", options: { bold: true, color: "FFFFFF", fontSize: 18, breakLine: true } }, { text: "screenshot → verdict", options: { color: P.ltext, fontSize: 11 } }],
       { x: 11.0, y: 2.5, w: 1.75, h: 2.4 });

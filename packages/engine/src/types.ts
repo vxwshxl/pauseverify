@@ -88,4 +88,5 @@ export interface Analysis {
   seen?: string;
 }
 
-export type Lang = "en" | "as" | "brx" | "hi";
+/** English, Hindi and every Northeast language Bhashini serves (checked 2026-11-14). */
+export type Lang = "en" | "hi" | "as" | "brx" | "bn" | "mni" | "ne" | "kha" | "lus";
