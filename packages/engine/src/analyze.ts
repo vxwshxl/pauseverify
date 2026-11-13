@@ -24,9 +24,11 @@ export interface AnalyzeInput {
   text: string;
   /** Raw contents of a QR code found in an image, if any. */
   qr?: string;
+  /** One-sentence description from the vision model, shown as "What I see". */
+  seen?: string;
 }
 
-export function analyze({ text, qr }: AnalyzeInput): Analysis {
+export function analyze({ text, qr, seen }: AnalyzeInput): Analysis {
   const flags: Flag[] = [];
   const otpDelivery = OTP_DELIVERY.test(text);
 
@@ -100,7 +102,7 @@ export function analyze({ text, qr }: AnalyzeInput): Analysis {
       ? linkNote ? `No warning signs · ${linkNote}` : "No warning signs found"
       : [`${signs} warning sign${signs === 1 ? "" : "s"}`, linkNote].filter(Boolean).join(" · ");
 
-  return { score, level, headline, summary, flags, links, claimedEntity: entity, steps: steps(level, flags, links, entity), upi };
+  return { score, level, headline, summary, flags, links, claimedEntity: entity, steps: steps(level, flags, links, entity), upi, seen };
 }
 
 function shortName(e: Entity) {
@@ -119,6 +121,7 @@ function steps(level: RiskLevel, flags: Flag[], links: LinkReport[], entity?: En
   if (entity?.tip) out.push(entity.tip);
   if (entity?.app) out.push(`Open the ${entity.app} app yourself and check there.`);
   if (entity?.site) out.push(`Or type ${entity.site} into your browser yourself.`);
+  if (entity?.kind === "bank" && bad) out.push("Real Indian bank websites now end in .bank.in — any other ending is not your bank.");
   if (has("credentials") || level !== "safe") out.push("Never share your OTP, PIN, password or card details — with anyone, even “bank staff”.");
   if (level === "high") out.push(`Already paid or shared details? Call ${HELP.helpline} now, or report at ${HELP.portal}.`);
   if (level === "safe") out.push(entity?.app ? `Still unsure? Check in the ${entity.app} app.` : "Still unsure? Contact the company through its official app or website.");

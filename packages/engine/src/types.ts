@@ -84,4 +84,8 @@ export interface Analysis {
   steps: string[];
   /** A decoded UPI QR, when the input contained one. */
   upi?: UpiPayment;
+  /** What the vision model saw in a screenshot, in one plain sentence. */
+  seen?: string;
 }
+
+export type Lang = "en" | "as" | "brx" | "hi";

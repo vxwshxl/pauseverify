@@ -3,9 +3,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import QRCode from "qrcode";
 import { ArrowLeft, Mail, MessageCircle, MessageSquareText, ScanSearch, UserRound, Inbox as InboxIcon } from "lucide-react";
 import { analyze, SAMPLES, type Analysis, type Sample } from "@pv/engine";
-import { Highlighted, LookOverlay, type Rect } from "@pv/island";
-import { ThemedIsland } from "@/components/themed-island";
+import { Highlighted, Island, LookOverlay, type Rect } from "@pv/island";
 import { qrInRect, textInRect } from "@/components/look-reader";
+import { useIslandServices } from "@/components/use-island-services";
 import { cn } from "@/lib/utils";
 
 type Tab = "all" | Sample["channel"];
@@ -26,6 +26,8 @@ export function Inbox() {
   const [looking, setLooking] = useState(false);
   const [qrSrc, setQrSrc] = useState<Record<string, string>>({});
   const threadRef = useRef<HTMLDivElement>(null);
+  const [checkedText, setCheckedText] = useState<string | undefined>();
+  const ai = useIslandServices(checkedText);
 
   // Results for the list dots: computed on the device, instantly, for every message.
   const results = useMemo(() => Object.fromEntries(SAMPLES.map((s) => [s.id, analyze({ text: s.text, qr: s.qr })])), []);
@@ -44,6 +46,7 @@ export function Inbox() {
     // from "watching" to a red alert reads as a glitch rather than a result.
     setTimeout(() => {
       // QR images are only read when the person asks the island to look at them.
+      setCheckedText(s.text);
       setAnalysis(analyze({ text: s.text }));
       setScanning(false);
     }, 650);
@@ -57,6 +60,7 @@ export function Inbox() {
     // A QR is judged with the message it came in ("scan to receive…"), as a person would read it.
     const inBox = textInRect(root, rect);
     const text = qr ? [open?.text, inBox].filter(Boolean).join(" ") : inBox || open?.text || "";
+    setCheckedText(text);
     setAnalysis(analyze({ text, qr: qr ?? undefined }));
     setScanning(false);
   }
@@ -144,7 +148,7 @@ export function Inbox() {
         </section>
       </div>
 
-      <ThemedIsland analysis={analysis} scanning={scanning} context={open ? "this message" : "this inbox"} onLook={() => setLooking(true)} />
+      <Island {...ai} analysis={analysis} scanning={scanning} context={open ? "this message" : "this inbox"} onLook={() => setLooking(true)} />
       {looking && <LookOverlay onSelect={onLook} onCancel={() => setLooking(false)} />}
     </div>
   );

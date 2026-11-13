@@ -83,7 +83,7 @@ export default function Home() {
             <p className="mt-3 max-w-lg text-lg text-secondary-fg">Don’t wait. Reporting in the first hours gives the best chance of stopping the money.</p>
           </div>
           <div className="flex flex-wrap gap-3 lg:justify-end">
-            <a href="tel:1930" className="inline-flex h-14 items-center gap-2 rounded-full bg-brand px-7 text-base font-semibold text-white dark:text-background"><Phone className="size-[18px]" />Call 1930</a>
+            <a href="tel:1930" className="inline-flex h-14 items-center gap-2 rounded-full bg-brand px-7 text-base font-semibold text-white"><Phone className="size-[18px]" />Call 1930</a>
             <a href="https://cybercrime.gov.in" target="_blank" rel="noopener noreferrer" className="inline-flex h-14 items-center rounded-full border border-foreground/20 bg-background px-7 text-base font-semibold">cybercrime.gov.in</a>
           </div>
         </div>

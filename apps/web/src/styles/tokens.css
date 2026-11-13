@@ -1,6 +1,6 @@
 /* ---------------------------------------------------------------------------
  * Design tokens — Tailwind CSS v4 + next-themes + shadcn/ui
- * Pause & Verify: ink-black actions, one coral brand colour, warm Airbnb-like neutrals (ADR-010).
+ * Pause & Verify — LIGHT MODE ONLY (product decision, see CLAUDE.md): ink-black actions, one coral brand colour, warm Airbnb-like neutrals (ADR-010).
  * Source of truth: standards/tokens.json · Spec: standards/TECH_STACK.md §9–§12
  *
  * HOW TO USE IN A NEW PROJECT
@@ -23,8 +23,6 @@
 
 @import "tailwindcss";
 
-/* next-themes writes class="dark" on <html>; teach Tailwind v4 that variant. */
-@custom-variant dark (&:is(.dark *));
 
 /* ===========================================================================
  * TIER 1 — PRIMITIVES (do not use outside this file)
@@ -111,47 +109,6 @@
   --ds-elevation-3: 0 0 0 1px rgb(0 0 0 / 0.08), 0 12px 32px rgb(0 0 0 / 0.12);
 }
 
-/* ===========================================================================
- * TIER 2 — SEMANTIC (dark)
- * Dark is not inverted light. Elevation is expressed by LIGHTER surfaces,
- * because a shadow does not read on #0A0A0A.
- * ========================================================================= */
-.dark {
-  color-scheme: dark;
-
-  --ds-bg:             var(--gray-950);
-  --ds-bg-subtle:      var(--gray-925);
-  --ds-bg-muted:       var(--gray-900);
-  --ds-bg-elevated:    var(--gray-880);
-
-  --ds-fg:             var(--gray-fg-d);
-  --ds-fg-secondary:   var(--gray-400);
-  --ds-fg-muted:       var(--gray-600);
-
-  --ds-border:         var(--gray-850);
-  --ds-border-strong:  var(--gray-800);
-
-  --ds-accent:         var(--blue-300);
-  --ds-accent-fg:      var(--gray-950);
-  --ds-accent-subtle:  var(--blue-950);
-
-  --ds-success:        var(--green-400);
-  --ds-warning:        var(--amber-400);
-  --ds-danger:         var(--red-400);
-  --ds-danger-fg:      var(--gray-950);
-
-  --ds-focus-ring:     var(--blue-300);
-
-  --ds-brand:          var(--coral-300);
-  --ds-brand-ink:      var(--coral-300);
-  --ds-brand-subtle:   var(--coral-950);
-
-  /* Surface lightening carries elevation; the ring keeps the edge readable. */
-  --ds-elevation-0: 0 0 0 1px var(--gray-850);
-  --ds-elevation-1: 0 0 0 1px var(--gray-850), 0 1px 2px rgb(0 0 0 / 0.4);
-  --ds-elevation-2: 0 0 0 1px var(--gray-850), 0 4px 12px rgb(0 0 0 / 0.5);
-  --ds-elevation-3: 0 0 0 1px var(--gray-800), 0 12px 32px rgb(0 0 0 / 0.6);
-}
 
 /* ===========================================================================
  * TIER 3 — shadcn/ui bridge
@@ -160,7 +117,7 @@
  * NOTE: shadcn's `accent` is a subtle hover surface, NOT the brand colour.
  * The brand lives in `primary`.
  * ========================================================================= */
-:root, .dark {
+:root {
   --background:            var(--ds-bg);
   --foreground:            var(--ds-fg);
   --card:                  var(--ds-bg-elevated);

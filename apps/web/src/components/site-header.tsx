@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Logo } from "./logo";
-import { ThemeToggle } from "./theme-toggle";
 import { NavLink } from "./nav-link";
 
 export function SiteHeader() {
@@ -14,7 +13,6 @@ export function SiteHeader() {
           <NavLink href="/#how">How it works</NavLink>
         </nav>
         <div className="ml-auto flex items-center gap-3 md:ml-0">
-          <ThemeToggle className="hidden sm:inline-flex" />
           <Link href="/demo" className="inline-flex h-11 items-center rounded-full bg-primary px-5 text-[15px] font-semibold text-primary-foreground transition-transform duration-[120ms] active:scale-[0.97]">
             Try it
           </Link>

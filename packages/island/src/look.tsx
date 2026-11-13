@@ -5,7 +5,7 @@ import { X } from "lucide-react";
 export interface Rect { x: number; y: number; width: number; height: number }
 
 /** Full-screen "drag a box around anything" layer. Reports the box in viewport pixels. */
-export function LookOverlay({ onSelect, onCancel, theme = "auto" }: { onSelect: (r: Rect) => void; onCancel: () => void; theme?: "light" | "dark" | "auto" }) {
+export function LookOverlay({ onSelect, onCancel }: { onSelect: (r: Rect) => void; onCancel: () => void }) {
   const [start, setStart] = useState<{ x: number; y: number } | null>(null);
   const [rect, setRect] = useState<Rect | null>(null);
   const layer = useRef<HTMLDivElement>(null);
@@ -22,7 +22,7 @@ export function LookOverlay({ onSelect, onCancel, theme = "auto" }: { onSelect: 
   });
 
   return (
-    <div className="pv-root" data-theme={theme}>
+    <div className="pv-root">
       <div
         ref={layer}
         tabIndex={-1}

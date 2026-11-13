@@ -27,16 +27,10 @@
 
 @utility shadow-card {
   box-shadow: 0 0 0 1px rgb(0 0 0 / 0.04), 0 6px 16px rgb(0 0 0 / 0.08);
-  .dark & {
-    box-shadow: 0 0 0 1px var(--ds-border);
-  }
 }
 
 @utility shadow-float {
   box-shadow: 0 0 0 1px rgb(0 0 0 / 0.04), 0 18px 48px rgb(0 0 0 / 0.16), 0 4px 10px rgb(0 0 0 / 0.05);
-  .dark & {
-    box-shadow: 0 0 0 1px var(--ds-border), 0 18px 48px rgb(0 0 0 / 0.5);
-  }
 }
 
 @keyframes rise {

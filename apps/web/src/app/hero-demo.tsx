@@ -2,13 +2,14 @@
 import { useMemo } from "react";
 import { Lock, RotateCw } from "lucide-react";
 import { analyze, SAMPLES } from "@pv/engine";
-import { Highlighted } from "@pv/island";
-import { ThemedIsland } from "@/components/themed-island";
+import { Highlighted, Island } from "@pv/island";
+import { useIslandServices } from "@/components/use-island-services";
 
 /** A browser window with a real scam SMS and the real island, already alerting. */
 export function HeroDemo() {
   const sample = SAMPLES[0]!;
   const analysis = useMemo(() => analyze({ text: sample.text }), [sample.text]);
+  const ai = useIslandServices(sample.text);
   return (
     <div className="relative animate-rise [animation-delay:120ms]">
       <div className="relative h-[34rem] overflow-hidden rounded-[28px] border border-border bg-subtle shadow-float">
@@ -33,7 +34,7 @@ export function HeroDemo() {
             <Highlighted text={sample.text} analysis={analysis} />
           </p>
         </div>
-        <ThemedIsland analysis={analysis} inline context="this message" initialMode="alert" />
+        <Island {...ai} analysis={analysis} inline context="this message" initialMode="alert" />
       </div>
     </div>
   );
