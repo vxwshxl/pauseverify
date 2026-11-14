@@ -11,10 +11,17 @@ export function LookOverlay({ onSelect, onCancel }: { onSelect: (r: Rect) => voi
   const layer = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onCancel();
-    window.addEventListener("keydown", onKey);
+    // Capture phase: inside the extension's shadow root, key events are stopped from bubbling
+    // (so typing never triggers site shortcuts), which would otherwise swallow Escape.
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      e.preventDefault();
+      e.stopPropagation();
+      onCancel();
+    };
+    window.addEventListener("keydown", onKey, true);
     layer.current?.focus();
-    return () => window.removeEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey, true);
   }, [onCancel]);
 
   const box = (a: { x: number; y: number }, b: { x: number; y: number }): Rect => ({

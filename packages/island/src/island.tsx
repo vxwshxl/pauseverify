@@ -134,8 +134,9 @@ export function Island(props: IslandProps) {
   useEffect(() => {
     if (mode !== "sheet") return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setMode(analysis?.level === "safe" ? "idle" : "alert");
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    // Capture phase, for the same reason as the Look overlay (shadow-root event isolation).
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
   }, [mode, analysis]);
 
   const close = () => {
