@@ -280,7 +280,7 @@ function pchip(pts, n) {
     T(s, "ONLINE  ·  only when you ask, masked first", { x: M + 2 * (cw4 + gap), y: 1.52, w: 5.6, h: 0.26, fontSize: 11, bold: true, color: P.slate, charSpacing: 1 });
     const cards = [
       ["LuGlobe", "Browser extension", ["Chrome · WXT, Manifest V3", "React 19 + Motion, Shadow DOM", "Reads pages live as they change", "Underlines with CSS Highlight API", "Look: captures part of the tab"], true],
-      ["LuCpu", "Scam engine", ["TypeScript, runs in the browser", "10 warning-sign rules, 5 scripts", "Look-alike + .bank.in link checks", "UPI QR decoded on device (jsQR)", "Masks OTP, phone, card, email · 18 tests"], true],
+      ["LuCpu", "Scam engine", ["TypeScript, runs in the browser", "10 warning-sign rules, 5 scripts", "Look-alike + .bank.in link checks", "UPI QR decoded on device (jsQR)", "Masks OTP, phone, card, email · 21 tests"], true],
       ["LuServer", "Our API", ["Next.js 16 on Vercel", "Translate · speak · chat · vision", "API keys stay on the server", "Rate-limited · nothing stored", "Auto-deploys from GitHub"], false],
       ["LuSparkles", "AI services", ["Bhashini (MeitY): translation +", "voice, 9 Indian languages", "Sarvam-105B: plain-word answers", "Gemma 3 27B: reads screenshots", "AI never decides the verdict"], false],
     ];
@@ -330,11 +330,11 @@ function pchip(pts, n) {
   // ════ 6 · Future scope ════════════════════════════════════════════════
   pres.addSection({ title: "Future" });
   {
-    const s = slide("Dark", "Future", "FUTURE SCOPE", "From the browser to the phone: a Truecaller-style guard for every SMS, call and chat — still private.");
+    const s = slide("Dark", "Future", "FUTURE SCOPE", "From the browser to the phone in 3 months: a Truecaller-style guard for every SMS, call and chat — still private.");
     const cols = [
       ["NOW · BUILT", P.panel2, P.ltext, ["Chrome extension on any website", "Web checker for text and screenshots", "9 languages, read-aloud in 6", "Live on Vercel, with a privacy demo"]],
-      ["NEXT · 6–12 MONTHS", P.coral, "FFFFFF", ["Android app: scam SMS flagged before you open it, on the phone", "Notification guard for WhatsApp, Telegram and email", "Share-to-check from any app", "Scam-caller warnings from 1930 + community reports", "Built-in UPI QR scanner"]],
-      ["LATER · YEAR 2–3", P.amber, P.ink, ["Bank SDK: white-label inside bank apps", "Live-call guard for “digital arrest”", "Family mode: alert a trusted relative", "Anonymous scam-trend dashboard for banks and I4C", "Garo, Kokborok when Bhashini adds them; iOS"]],
+      ["MONTH 1–2", P.coral, "FFFFFF", ["Android app: scam SMS flagged before you open it, on the phone", "Notification guard for WhatsApp, Telegram and email", "Share-to-check from any app", "Built-in UPI QR scanner"]],
+      ["MONTH 3", P.amber, P.ink, ["Scam-caller warnings from 1930 + community reports", "Bank SDK: white-label inside bank apps", "Family mode: alert a trusted relative", "Scam-trend dashboard for banks and I4C", "iOS: SMS filter + share-to-check"]],
     ];
     const cwid = 2.72, gap = 0.18;
     cols.forEach(([h, fill, hc, items], i) => {
@@ -371,7 +371,7 @@ function pchip(pts, n) {
     T(s, "Show me why", { x: px + 0.34, y: py + 4.0, w: pw2 - 0.68, h: 0.36, fontSize: 9.5, bold: true, color: "FFFFFF", align: "center", valign: "middle" });
     box(s, px + 0.34, py + 4.44, pw2 - 0.68, 0.36, "C8323C", { r: 0.18, name: "1930 button" });
     T(s, "Lost money? Call 1930", { x: px + 0.34, y: py + 4.44, w: pw2 - 0.68, h: 0.36, fontSize: 9.5, bold: true, color: "FFFFFF", align: "center", valign: "middle" });
-    src(s, "Phone screen is a concept for the Android app; everything under “Now” is built and working today.", true, 6.62);
+    src(s, "The whole app ships within 3 months, reusing today’s engine. Phone screen is a concept; everything under “Now” is built and working today.", true, 6.62);
     s.addNotes(NOTES.future);
   }
 
@@ -404,7 +404,7 @@ function pchip(pts, n) {
     T(s, [{ text: "Stayed quiet", options: { bold: true, color: "FFFFFF", fontSize: 13, breakLine: true } },
       { text: "Wikipedia, NDTV, Flipkart; advice pages get no pop-up" }], { x: 9.2, y: 2.58, w: 3.35, h: 0.62, fontSize: 11.5, color: P.ltext, paraSpaceAfter: 2 });
     s.addShape(pres.shapes.LINE, { x: 9.2, y: 3.35, w: 3.3, h: 0, line: { color: "3A3633", width: 0.75 }, objectName: "proof divider" });
-    [["18/18", "engine tests"], ["9", "languages"], ["0", "messages stored"]].forEach(([b, c], i) => {
+    [["21/21", "engine tests"], ["9", "languages"], ["0", "messages stored"]].forEach(([b, c], i) => {
       const x = 9.2 + i * 1.12;
       T(s, b, { x, y: 3.5, w: 1.1, h: 0.5, fontSize: 24, bold: true, color: "FFFFFF", valign: "middle" });
       T(s, c, { x, y: 4.0, w: 1.1, h: 0.5, fontSize: 10.5, color: P.ltext });
@@ -432,7 +432,7 @@ function pchip(pts, n) {
     T(s, "Reads the QR", { x: 8.85, y: 4.55, w: cw, h: 0.28, fontSize: 12.5, bold: true, color: "FFFFFF", align: "center" });
     s.addImage({ path: A("mark.png"), x: 11.25, y: 1.75, w: 0.6, h: 0.6, objectName: "mark", altText: "" });
     T(s, [{ text: "9 languages", options: { bold: true, color: "FFFFFF", fontSize: 18, breakLine: true } }, { text: "7 from the Northeast", options: { color: P.ltext, fontSize: 11, breakLine: true } }, { text: " ", options: { breakLine: true } },
-      { text: "18 / 18", options: { bold: true, color: "FFFFFF", fontSize: 18, breakLine: true } }, { text: "engine tests pass", options: { color: P.ltext, fontSize: 11, breakLine: true } }, { text: " ", options: { breakLine: true } },
+      { text: "21 / 21", options: { bold: true, color: "FFFFFF", fontSize: 18, breakLine: true } }, { text: "engine tests pass", options: { color: P.ltext, fontSize: 11, breakLine: true } }, { text: " ", options: { breakLine: true } },
       { text: "~8 s", options: { bold: true, color: "FFFFFF", fontSize: 18, breakLine: true } }, { text: "screenshot → verdict", options: { color: P.ltext, fontSize: 11 } }],
       { x: 11.0, y: 2.5, w: 1.75, h: 2.4 });
     s.addImage({ path: A("card-paused.png"), x: 6.75, y: 4.95, w: 4.2, h: 4.2 / PAUSED, objectName: "Paused link", altText: "Paused. This link isn't what it seems." });

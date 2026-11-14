@@ -43,9 +43,9 @@ Three ways in: drag "Look" over any part of the screen, right-click an image, or
 The check happens in the browser; nothing is sent. Only if you ask the AI is the message sent — with OTPs, phone, card and account numbers and emails masked first — over HTTPS, and nothing is stored. Show https://pauseverify.vercel.app/privacy: it shows the exact request, masked, and what the network sees.
 
 **Won't it cry wolf?**
-We tested on live sites: quiet on Wikipedia, NDTV and Flipkart; on scam-awareness pages (ScamDekho, OneIndia, Mokokchung Times) it underlines only the quoted scam SMS and doesn't pop an alert. Bank menus like "Update KYC" are skipped as navigation. 18 automated tests guard these cases.
+We tested on live sites: quiet on Wikipedia, NDTV and Flipkart; on scam-awareness pages (ScamDekho, OneIndia, Mokokchung Times) it underlines only the quoted scam SMS and doesn't pop an alert. Bank menus like "Update KYC" are skipped as navigation. 21 automated tests guard these cases.
 
-**How would you build the phone app? (We haven't built it yet.)**
+**How would you build the phone app, and how long? (Not built yet — 3 months.)**
 - *Android first:* most Indian users and scam SMS are there. Kotlin, or React Native/Expo to reuse our TypeScript engine as-is.
 - *Reading messages:* SMS access needs Google Play's SMS-permission review — the surest route is offering to be the user's SMS app; a NotificationListenerService (notification access) covers WhatsApp, Telegram and email previews. Everything is read on the phone.
 - *Same engine:* the TypeScript rules run inside the app (Hermes/JS engine), so a scam SMS is flagged before it's opened, offline.
@@ -53,6 +53,7 @@ We tested on live sites: quiet on Wikipedia, NDTV and Flipkart; on scam-awarenes
 - *Languages and AI:* the same Vercel API for translation, voice and answers; a small on-device model later.
 - *iOS:* Apple doesn't let apps read SMS, so an SMS Filter (Message Filter) extension plus a share-sheet "Check this".
 - *Distribution:* free on Play Store, and a white-label SDK for banks' own apps — the business model.
+- *Timeline: 3 months.* Month 1–2: Android app (SMS + notification guard, share-to-check, QR scanner) on the existing engine and API. Month 3: caller warnings, bank SDK, family mode, trend dashboard, iOS filter. Fast because the engine, languages and API already work.
 
 **Why not just use Truecaller?**
 Truecaller identifies callers and spam senders. It doesn't read the message and explain *why* it's a scam, check the link, decode a UPI QR, or speak Bodo, Khasi or Mizo. We explain the exact message, in the reader's language, and show a safe way to check.
