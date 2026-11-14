@@ -11,6 +11,7 @@ export function SiteHeader() {
           <NavLink href="/demo">Live demo</NavLink>
           <NavLink href="/check">Check a message</NavLink>
           <NavLink href="/#how">How it works</NavLink>
+          <NavLink href="/scoring">Scoring</NavLink>
           <NavLink href="/privacy">Privacy</NavLink>
         </nav>
         <div className="ml-auto flex items-center gap-3 md:ml-0">
@@ -23,6 +24,7 @@ export function SiteHeader() {
         <NavLink href="/demo">Live demo</NavLink>
         <NavLink href="/check">Check a message</NavLink>
         <NavLink href="/#how">How it works</NavLink>
+        <NavLink href="/scoring">Scoring</NavLink>
         <NavLink href="/privacy">Privacy</NavLink>
       </nav>
     </header>

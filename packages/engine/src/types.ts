@@ -94,6 +94,8 @@ export interface Analysis {
    * judged, and the extension underlines them without raising an alert.
    */
   aboutScams?: boolean;
+  /** Every point that went into the score, in order — shown on the website's scoring page. */
+  breakdown: ScorePart[];
   /** What we found when the link was opened on our server (website checker, extension "check link"). */
   page?: Omit<PageFacts, "text">;
 }
@@ -119,4 +121,12 @@ export interface PageFacts {
   ageDays?: number;
   /** Set when the page couldn't be opened; the rest is then empty. */
   error?: string;
+}
+
+export interface ScorePart {
+  kind: "sign" | "link" | "combo" | "adjust";
+  label: string;
+  points: number;
+  /** The words or address that triggered it. */
+  quote?: string;
 }

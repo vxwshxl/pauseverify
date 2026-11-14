@@ -11,7 +11,7 @@ export function SiteFooter() {
             A calm second opinion, right where the message is. Checks run on your device; nothing is stored.
           </p>
         </div>
-        <FooterCol title="Product" links={[["Live demo", "/demo"], ["Check a message", "/check"], ["How it works", "/#how"], ["Privacy & security", "/privacy"]]} />
+        <FooterCol title="Product" links={[["Live demo", "/demo"], ["Check a message", "/check"], ["How it works", "/#how"], ["How the score works", "/scoring"], ["Privacy & security", "/privacy"]]} />
         <FooterCol title="If you were scammed" links={[["Call 1930", "tel:1930"], ["cybercrime.gov.in", "https://cybercrime.gov.in"], ["Report on Sanchar Saathi", "https://sancharsaathi.gov.in"]]} />
       </div>
       <div className="container-page border-t border-border py-6 text-sm text-muted-foreground">

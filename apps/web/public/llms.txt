@@ -15,6 +15,7 @@ Key facts:
 - [Home](https://pauseverify.vercel.app/): what it does, the scam patterns it knows, languages, FAQ
 - [Live demo](https://pauseverify.vercel.app/demo): a pretend inbox with real Indian scam patterns
 - [Check a message](https://pauseverify.vercel.app/check): paste text or a link, or upload a screenshot
+- [How the score works](https://pauseverify.vercel.app/scoring): every warning sign and its points, thresholds (25 = be careful, 55 = stop), combinations, and a live calculator
 - [Privacy & security](https://pauseverify.vercel.app/privacy): what stays on the device, what is sent (masked), what is kept (nothing)
 
 ## Source
