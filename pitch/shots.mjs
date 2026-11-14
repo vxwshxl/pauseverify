@@ -50,15 +50,13 @@ const ectx = await chromium.launchPersistentContext("", { channel: "chromium", h
   args: [`--disable-extensions-except=${EXT}`, `--load-extension=${EXT}`] });
 if (!ectx.serviceWorkers().length) await ectx.waitForEvent("serviceworker");
 p = await ectx.newPage();
-// A real public page: Kotak Bank's article quoting the power-cut fraud SMS.
-await p.goto("https://www.kotak.bank.in/en/safe-banking/safe-banking-articles/the-electricity-sms-fraud.html", { waitUntil: "domcontentloaded" });
-await sleep(3500);
-await p.getByText(/disconnected/i).first().scrollIntoViewIfNeeded().catch(() => {});
-await p.mouse.wheel(0, -200);
-await sleep(2500);
-await p.screenshot({ path: OUT + "ext-alert.png" });
+// A message page: underlines in place and the island's alert. (Pages *about* scams — Kotak's
+// safety article — are underlined but never pop the alert, so they don't make this shot.)
 await p.goto("http://localhost:8765/");
 await sleep(2500);
+await p.screenshot({ path: OUT + "ext-alert.png" });
+await p.locator("pause-verify .pv-alert [aria-label=Dismiss]").click().catch(() => {});
+await sleep(600);
 await p.click("#fake");
 await sleep(700);
 await p.locator("pause-verify .pv-shell").screenshot({ path: OUT + "ext-paused.png" });

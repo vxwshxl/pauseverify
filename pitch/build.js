@@ -9,10 +9,11 @@ const { renderToStaticMarkup } = require("react-dom/server");
 const L = require("react-icons/lu");
 const { applyTheme } = require(process.env.SKILL + "/scripts/apply_theme.js");
 const CH = require("./charts.js");
+const NOTES = require("./notes.js");
 
 const OUT = process.argv[2] || "deck.pptx";
 const A = (f) => path.join(__dirname, "assets", f);
-const LIVE = process.env.LIVE_URL || "github.com/vxwshxl/pauseverify";
+const LIVE = process.env.LIVE_URL || "pauseverify.vercel.app";
 
 // ── palette: Pause & Verify (warm ink, coral, amber) ─────────────────────
 const P = {
@@ -130,7 +131,7 @@ function pchip(pts, n) {
     ], { x: M, y: 5.62, w: 7.2, h: 1.25, paraSpaceAfter: 4 });
     s.addImage({ path: A("macbook-ext.png"), x: 7.75, y: 2.0, w: 5.2, h: 5.2 / MB, objectName: "Extension on a laptop", altText: "Pause & Verify catching a fake bank SMS on a web page" });
     s.addImage({ path: A("card-paused.png"), x: 8.4, y: 5.25, w: 3.9, h: 3.9 / PAUSED, objectName: "Paused link card", altText: "Paused. This link isn't what it seems." });
-    s.addNotes("Open: Pause & Verify. A calm second opinion on suspicious messages, right where they appear. Introduce Veeshal, Mrinmoy and Deepjyoti, Team Commit&Run.");
+    s.addNotes(NOTES.cover);
   }
 
   // ════ 2 · Problem & market ════════════════════════════════════════════
@@ -180,13 +181,13 @@ function pchip(pts, n) {
     });
     T(s, [{ text: "Why now   ", options: { bold: true, color: P.coralInk } }, { text: "reporting fast works — ₹5,489 cr already saved via 1930  ·  banks moved to .bank.in addresses  ·  AI now speaks Bodo, Khasi and Mizo" }], { x: M, y: 6.43, w: CW, h: 0.24, fontSize: 12, color: P.text });
     src(s, "Sources: MHA written reply, Lok Sabha, July 2025 (I4C: NCRP + CFCFRMS) · MHA/I4C digital-arrest data, Parliament reply 2025 · IAMAI–Kantar, Internet in India 2024. 1 crore = 10 million. Targets are ours.", false, 6.7);
-    s.addNotes("60 seconds. ₹22,845 crore lost in 2024, up 206%. Digital arrest losses went from ₹91 crore to ₹1,936 crore in two years. 88.6 crore Indians are online, most of the growth rural and first-time. The pattern is always the same: urgency, fear, a tap, an OTP. Spam filters may block, but nobody explains why or tells you how to check.");
+    s.addNotes(NOTES.problem);
   }
 
   // ════ 3 · Idea & solution ═════════════════════════════════════════════
   pres.addSection({ title: "Solution" });
   {
-    const s = slide("Light", "Solution", "IDEA & SOLUTION", "A small island in the corner of the screen that stops you at the risky moment and explains why.");
+    const s = slide("Light", "Solution", "IDEA & SOLUTION", "A small island in the corner of the screen (drag it anywhere) that stops you at the risky moment and explains why.");
     const flow = ["Message", "Checked", "Underlined", "Explained", "Safe check", "1930"];
     const LW = 8.35, fw = 1.22, gap = (LW - fw * 6) / 5;
     flow.forEach((t, i) => {
@@ -214,13 +215,13 @@ function pchip(pts, n) {
     s.addImage({ path: A("card-sheet-qr.png"), x: 9.05, y: 2.15, w: 2.45, h: 2.45 / SHEET_QR, objectName: "QR result sheet", altText: "Island sheet: This QR sends ₹5,000" });
     s.addImage({ path: A("card-sheet-as.png"), x: 10.45, y: 1.55, w: 2.45, h: 2.45 / SHEET, objectName: "Assamese sheet", altText: "Island sheet explaining a scam in Assamese" });
     src(s, "Sources: Pause & Verify prototype (engine tests: every scam sample high risk, genuine OTP and Amazon messages safe) · Bhashini (MeitY) · Sarvam AI · Gemma 3 (Google, open weights).", false, 6.62);
-    s.addNotes("60 seconds. The island watches quietly. When a message rushes, scares or asks for an OTP, it underlines the exact words, explains them in plain language and shows a safe way to check. It catches fake links before they open, tells you what a QR really pays, reads screenshots, and speaks seven Northeast languages, including Bodo, Khasi and Mizo. The decision is made on the device; AI only reads and explains.");
+    s.addNotes(NOTES.solution);
   }
 
   // ════ 4 · Business model & why we win ═════════════════════════════════
   pres.addSection({ title: "Business" });
   {
-    const s = slide("Dark", "Business", "BUSINESS MODEL & WHY WE WIN", "Free for families. Banks, campuses and districts pay to protect the people they serve.");
+    const s = slide("Dark", "Business", "BUSINESS MODEL & WHY WE WIN", "Free for families, so it spreads. Banks, campuses and districts pay, because every scam stopped saves them money.");
     const plans = [["Families", "₹0", "  forever", "Extension + web checker, nine languages, read-aloud"], ["Banks & fintech", "₹2", "  / active user / month", "White-label in their app + scam-trend dashboard"], ["Campus & work", "₹99", "  / seat / year", "Admin dashboard, scam drills, reporting"], ["Govt & CSR", "₹5 L", "  / district / year", "Training, kiosks, 1930 tie-in"]];
     const pw = (CW - 3 * 0.15) / 4;
     plans.forEach(([n, p, unit, d], i) => {
@@ -254,7 +255,7 @@ function pchip(pts, n) {
       T(s, b, { x, y: 5.55, w: 1.35, h: 0.38, fontSize: 18, bold: true, color: P.coral });
       T(s, c, { x, y: 5.93, w: 1.35, h: 0.22, fontSize: 10.5, color: P.muted });
     });
-    T(s, "Watching costs nothing to run — it happens on the user’s device. We only pay when someone asks.", { x: M + 0.22, y: 6.17, w: 5.6, h: 0.22, fontSize: 10.5, color: P.text });
+    T(s, "Checks run on the user’s device, free to us; we pay only when someone asks the AI.", { x: M + 0.22, y: 6.17, w: 5.6, h: 0.22, fontSize: 10.5, color: P.text });
 
     T(s, "Why we win", { x: M + 6.2, y: 3.07, w: 5, h: 0.32, fontSize: 15, bold: true, color: P.coralLt });
     const wc = (t, head, us, j) => ({ text: t, options: { bold: head || us || j === 0, color: head ? "FFFFFF" : P.ink, fill: { color: head ? (us ? P.coral : P.panel2) : us ? P.soft : "FFFFFF" }, fontSize: 11, align: j === 0 ? "left" : "center", valign: "middle", margin: [0, 0.069, 0, 0.069] } });
@@ -263,61 +264,118 @@ function pchip(pts, n) {
       x: M + 6.2, y: 3.45, w: CW - 6.2, colW: [1.5, 0.95, 1.0, 1.05, 1.43], rowH: 0.37, border: { type: "solid", pt: 0.75, color: P.line }, objectName: "comparison table",
     });
     T(s, [{ text: "Hard to copy: ", options: { bold: true, color: P.coralLt } }, { text: "India-specific rules in nine languages, including low-resource Northeast ones, a reviewed directory of real bank and government sites, and an engine that runs privately on the device." }], { x: M + 6.2, y: 5.8, w: CW - 6.2, h: 0.55, fontSize: 12, color: P.ltext });
-    src(s, "Plans and unit economics are our estimates (AI, cloud, support; about ₹1.3 L to win and onboard a bank); columns are types of alternative, not specific products.", true);
-    s.addNotes("60 seconds. Families never pay. Banks pay ₹2 per active user a month to put Pause & Verify in their app — cheaper than one fraud claim. One bank with 50,000 active users brings ₹1 lakh a month and leaves ₹65,000. Watching is free to run because it happens on the device. Why we win: we're the only one that explains, in seven Northeast languages, right where you read.");
+    src(s, "We never sell user data. Plans and unit economics are our estimates (AI, cloud, support; about ₹1.3 L to win and onboard a bank); columns are types of alternative, not specific products.", true);
+    s.addNotes(NOTES.business);
   }
 
-  // ════ 5 · Implementation & financial plan ═════════════════════════════
+  // ════ 5 · Tech stack ══════════════════════════════════════════════════
+  pres.addSection({ title: "Technology" });
   {
-    const s = slide("Light", "Business", "IMPLEMENTATION & FINANCIAL PLAN", "The prototype works today. A gated rollout takes it from Assam to India, breaking even in month 14.");
-    T(s, "How it reaches people", { x: M, y: 1.6, w: 4, h: 0.3, fontSize: 14, bold: true, color: P.ink });
-    const steps = [["Install", "Chrome Web Store, or inside a bank’s app"], ["Watch", "quietly, on the device"], ["Alert", "explains, in their own language"], ["Learn", "anonymous scam trends for partners"]];
-    steps.forEach(([h, b], i) => {
-      const y = 1.97 + i * 0.5;
-      s.addShape(pres.shapes.OVAL, { x: M, y: y + 0.03, w: 0.36, h: 0.36, fill: { color: P.coral }, line: { color: P.coral, width: 0 }, objectName: "step " + h });
-      T(s, String(i + 1), { x: M, y: y + 0.03, w: 0.36, h: 0.36, fontSize: 12, bold: true, color: "FFFFFF", align: "center", valign: "middle" });
-      T(s, [{ text: h + "  ", options: { bold: true, color: P.ink } }, { text: b }], { x: M + 0.5, y, w: 3.55, h: 0.42, fontSize: 12, valign: "middle" });
-    });
-    T(s, "Rollout, with a gate at each step", { x: M, y: 4.1, w: 4, h: 0.3, fontSize: 14, bold: true, color: P.ink });
-    const rc = (t, head) => ({ text: t, options: { bold: head, color: head ? "FFFFFF" : P.ink, fill: { color: head ? P.ink : "FFFFFF" }, fontSize: 11, valign: "middle", margin: [0, 0.069, 0, 0.069] } });
-    const roll = [["0–3 mo", "Web Store, 10 Assam colleges", "5,000 weekly users"], ["3–9 mo", "Android app, 2 bank pilots", "1 paid pilot"], ["9–18 mo", "Northeast, 5 banks, CSR", "Break-even"], ["Year 2–3", "India, 10 languages", "Self-funded"]];
-    s.addTable([["When", "Target", "Go on only if"].map((t) => rc(t, true)), ...roll.map((r) => r.map((t) => rc(t)))], {
-      x: M, y: 4.45, w: 4.05, colW: [0.8, 1.95, 1.3], rowH: [0.32, 0.42, 0.42, 0.42, 0.42], border: { type: "solid", pt: 0.75, color: P.line }, objectName: "rollout table",
-    });
+    const s = slide("Light", "Technology", "TECH STACK", "On-device first: our engine decides in milliseconds. AI only reads, translates and explains — and only when asked.");
+    const gap = 0.34, cw4 = (CW - 3 * gap) / 4, cy = 1.95, ch = 2.02;
+    // Lane labels: what runs on the device vs what goes online
+    s.addShape(pres.shapes.LINE, { x: M, y: 1.82, w: cw4 * 2 + gap, h: 0, line: { color: P.coral, width: 1.5 }, objectName: "device lane" });
+    s.addShape(pres.shapes.LINE, { x: M + 2 * (cw4 + gap), y: 1.82, w: cw4 * 2 + gap, h: 0, line: { color: P.slate, width: 1.5 }, objectName: "online lane" });
+    T(s, "ON YOUR DEVICE  ·  works offline", { x: M, y: 1.52, w: 5, h: 0.26, fontSize: 11, bold: true, color: P.coralInk, charSpacing: 1 });
+    T(s, "ONLINE  ·  only when you ask, masked first", { x: M + 2 * (cw4 + gap), y: 1.52, w: 5.6, h: 0.26, fontSize: 11, bold: true, color: P.slate, charSpacing: 1 });
+    const cards = [
+      ["LuGlobe", "Browser extension", ["Chrome · WXT, Manifest V3", "React 19 + Motion, Shadow DOM", "Reads pages live as they change", "Underlines with CSS Highlight API", "Look: captures part of the tab"], true],
+      ["LuCpu", "Scam engine", ["TypeScript, runs in the browser", "10 warning-sign rules, 5 scripts", "Look-alike + .bank.in link checks", "UPI QR decoded on device (jsQR)", "Masks OTP, phone, card, email · 18 tests"], true],
+      ["LuServer", "Our API", ["Next.js 16 on Vercel", "Translate · speak · chat · vision", "API keys stay on the server", "Rate-limited · nothing stored", "Auto-deploys from GitHub"], false],
+      ["LuSparkles", "AI services", ["Bhashini (MeitY): translation +", "voice, 9 Indian languages", "Sarvam-105B: plain-word answers", "Gemma 3 27B: reads screenshots", "AI never decides the verdict"], false],
+    ];
+    for (let i = 0; i < cards.length; i++) {
+      const [ic0, h, lines, dev] = cards[i], x = M + i * (cw4 + gap);
+      box(s, x, cy, cw4, ch, "FFFFFF", { line: dev ? "F3C9CC" : P.line, shadow: true, name: h + " card" });
+      await iconChip(s, x + 0.2, cy + 0.2, 0.46, ic0, dev ? P.coral : P.soft2, dev ? "FFFFFF" : P.panel2);
+      T(s, h, { x: x + 0.78, y: cy + 0.2, w: cw4 - 0.9, h: 0.46, fontSize: 14, bold: true, color: P.ink, valign: "middle" });
+      T(s, lines.map((t, j) => ({ text: t, options: j < lines.length - 1 ? { breakLine: true } : {} })), { x: x + 0.22, y: cy + 0.8, w: cw4 - 0.36, h: ch - 0.92, fontSize: 10.5, color: P.text, paraSpaceAfter: 3 });
+      if (i < 3) T(s, "→", { x: x + cw4, y: cy + ch / 2 - 0.22, w: gap, h: 0.44, fontSize: 18, bold: true, color: i === 1 ? P.coral : P.slate, align: "center", valign: "middle" });
+    }
+    pill(s, M + 2 * cw4 + gap - 0.55, cy + ch + 0.02, 1.78, 0.28, "MASKED · HTTPS", P.coral, "FFFFFF", 9);
 
-    const N = 36;
-    const base = pchip([[0, 0], [4, -3], [8, -7], [12, -10.5], [14, -11.2], [16, -10.6], [20, -6], [24, 0], [28, 9], [32, 22], [35, 36]], N);
-    const down = pchip([[0, 0], [6, -5], [12, -11], [18, -15.5], [21, -16.2], [24, -15], [30, -6], [33, 0], [35, 5]], N);
-    T(s, "Cumulative operating cash, ₹ lakh", { x: 4.95, y: 1.6, w: 5, h: 0.3, fontSize: 14, bold: true, color: P.ink });
-    await CH.cash(A("c-cash.png"), 5.3, 4.45, base, down, {
-      vmin: -20, vmax: 40, raise: 0, step: 10, gates: [[9, "Gate 2"], [18, "Gate 3"]], startYear: 2027, endLabel: "Dec 2029",
-      endBase: "Base\n+₹36 L", endDown: "Downside\n+₹5 L",
-      notes: [
-        { m: 14, v: -11.2, t: "Base low −₹11.2 L\n(month 14)", at: [10.5, 6], lead: [11.8, 1.6] },
-        { m: 24, v: 0, t: "All cash back\nmonth 24", at: [21, 22], lead: [22.3, 17.4] },
-        { m: 21, v: -16.2, t: "Low −₹16.2 L, month 21", at: [30.6, -18.6], down: true },
-        { m: 33, v: 0, t: "month 33", at: [30.4, 2.6], down: true },
-      ],
-    });
-    s.addImage({ path: A("c-cash.png"), x: 4.85, y: 1.95, w: 5.3, h: 4.45, objectName: "Cumulative cash chart", altText: "Cumulative operating cash, ₹ lakh, Jan 2027 to Dec 2029. Base: low −11.2 L in month 14, back to zero in month 24, +36 L by month 36. Downside: low −16.2 L in month 21, zero in month 33, +5 L." });
+    // Bottom: offline vs online, screenshots & OCR, privacy
+    const by = 4.36, bh = 2.12, pw = (CW - 2 * 0.2) / 3;
+    box(s, M, by, pw, bh, "FFFFFF", { line: P.line, name: "offline panel" });
+    T(s, "Works offline", { x: M + 0.2, y: by + 0.12, w: 1.9, h: 0.28, fontSize: 13, bold: true, color: P.green });
+    T(s, ["Scam check + score", "Fake & look-alike links", "Who a UPI QR pays", "Underlines, alert, link pause", "Ready answers"].map((t, j, a) => ({ text: "✓ " + t, options: j < a.length - 1 ? { breakLine: true } : {} })),
+      { x: M + 0.2, y: by + 0.48, w: 2.05, h: 1.55, fontSize: 11, color: P.text, paraSpaceAfter: 4 });
+    T(s, "Needs internet", { x: M + 2.28, y: by + 0.12, w: 1.6, h: 0.28, fontSize: 13, bold: true, color: P.slate });
+    T(s, ["Translation", "Read-aloud", "Free-form AI answers", "Text inside pictures"].map((t, j, a) => ({ text: "○ " + t, options: j < a.length - 1 ? { breakLine: true } : {} })),
+      { x: M + 2.28, y: by + 0.48, w: 1.55, h: 1.55, fontSize: 11, color: P.text, paraSpaceAfter: 4 });
 
-    box(s, 10.35, 1.6, CW - 9.75, 2.15, P.ink, { name: "built today card" });
-    T(s, "ALREADY BUILT", { x: 10.55, y: 1.72, w: 2, h: 0.25, fontSize: 11, bold: true, color: P.coralLt, charSpacing: 1 });
-    T(s, "Working today", { x: 10.55, y: 1.98, w: 2.1, h: 0.45, fontSize: 21, bold: true, color: "FFFFFF", valign: "middle" });
-    T(s, [["Engine  ", "on-device, 14 tests"], ["Extension  ", "on real websites"], ["Web  ", "demo + checker"], ["AI  ", "9 languages, Bhashini"]].flatMap(([h, t], i, a) => [
-      { text: "✓ " + h, options: { bold: true, color: "FFFFFF" } }, { text: t, options: i < a.length - 1 ? { breakLine: true } : {} }]),
-      { x: 10.55, y: 2.5, w: 2.2, h: 1.15, fontSize: 11, color: P.ltext, paraSpaceAfter: 3 });
-    const ks = [["Month 14", "operating break-even", P.coral], ["−₹16 L", "worst cash, bad case", P.amberInk], ["₹2.4 cr", "ARR in 2029, 10 banks", P.coral]];
-    ks.forEach(([b, c, col], i) => {
-      const y = 3.95 + i * 0.82;
-      T(s, b, { x: 10.35, y, w: 2.4, h: 0.45, fontSize: 24, bold: true, color: col });
-      T(s, c, { x: 10.35, y: y + 0.45, w: 2.4, h: 0.24, fontSize: 11, color: P.text });
+    const x2 = M + pw + 0.2;
+    box(s, x2, by, pw, bh, "FFFFFF", { line: P.line, name: "ocr panel" });
+    T(s, "Screenshots, images & QR", { x: x2 + 0.2, y: by + 0.12, w: pw - 0.4, h: 0.28, fontSize: 13, bold: true, color: P.ink });
+    const steps = ["Look · right-click · upload", "QR decoded on the device", "Gemma 3 reads the words", "Engine judges it"];
+    steps.forEach((t, j) => {
+      const yy = by + 0.5 + j * 0.31;
+      s.addShape(pres.shapes.OVAL, { x: x2 + 0.2, y: yy + 0.03, w: 0.22, h: 0.22, fill: { color: j === 1 || j === 3 ? P.coral : P.slate }, line: { color: "FFFFFF", width: 0 }, objectName: "ocr step " + j });
+      T(s, String(j + 1), { x: x2 + 0.2, y: yy + 0.03, w: 0.22, h: 0.22, fontSize: 9, bold: true, color: "FFFFFF", align: "center", valign: "middle" });
+      T(s, t, { x: x2 + 0.52, y: yy, w: pw - 0.7, h: 0.28, fontSize: 11, color: P.text, valign: "middle" });
     });
-    src(s, "Our model: costs ₹0.9 L → ₹1.6 L a month; banks pay ₹2 per active user a month; ARR = 10 banks × 1 lakh users × ₹24. Bad case: half the bank users, six months later.", false);
-    s.addNotes("60 seconds. People install it from the Chrome Web Store or get it inside their bank's app. We roll out with a gate at each step: colleges in Assam first, then bank pilots, then the Northeast, and we only move on when the gate is met. Everything on the right is already built and working. The base case breaks even in month 14 and has all cash back by month 24; even the bad case bottoms at minus ₹16 lakh and recovers by month 33.");
+    T(s, "Any script, about 8 seconds. Text already on the page is read exactly; AI fills in only what’s inside images.", { x: x2 + 0.2, y: by + 1.76, w: pw - 0.35, h: 0.32, fontSize: 9.5, italic: true, color: P.muted });
+
+    const x3 = M + 2 * (pw + 0.2);
+    box(s, x3, by, pw, bh, P.ink, { name: "privacy panel" });
+    T(s, "Privacy & security", { x: x3 + 0.2, y: by + 0.12, w: pw - 0.4, h: 0.28, fontSize: 13, bold: true, color: P.coralLt });
+    T(s, [["Checked on the device", " — nothing to send"], ["Masked", " — OTP, phone, card, email"], ["HTTPS", " on every request"], ["Nothing stored", " — no accounts, no logs"], ["Keys", " never ship in the extension"]].flatMap(([b, t], j, a) => [
+      { text: b, options: { bold: true, color: "FFFFFF" } }, { text: t, options: j < a.length - 1 ? { breakLine: true } : {} }]),
+      { x: x3 + 0.2, y: by + 0.48, w: pw - 0.35, h: 1.25, fontSize: 11, color: P.ltext, paraSpaceAfter: 3 });
+    T(s, [{ text: "See it live: ", options: { color: P.ltext2 } }, { text: "pauseverify.vercel.app/privacy", options: { bold: true, color: P.coralLt } }], { x: x3 + 0.2, y: by + 1.76, w: pw - 0.3, h: 0.26, fontSize: 10.5 });
+    src(s, "Stack: TypeScript · pnpm + Turborepo · Next.js 16 · React 19 · Tailwind v4 · WXT · Motion · jsQR · Vercel. Services: Bhashini (MeitY), Sarvam AI, Gemma 3 (Google, open weights) via Hugging Face.", false, 6.62);
+    s.addNotes(NOTES.tech);
   }
 
-  // ════ 6 · Conclusion ══════════════════════════════════════════════════
+  // ════ 6 · Future scope ════════════════════════════════════════════════
+  pres.addSection({ title: "Future" });
+  {
+    const s = slide("Dark", "Future", "FUTURE SCOPE", "From the browser to the phone: a Truecaller-style guard for every SMS, call and chat — still private.");
+    const cols = [
+      ["NOW · BUILT", P.panel2, P.ltext, ["Chrome extension on any website", "Web checker for text and screenshots", "9 languages, read-aloud in 6", "Live on Vercel, with a privacy demo"]],
+      ["NEXT · 6–12 MONTHS", P.coral, "FFFFFF", ["Android app: scam SMS flagged before you open it, on the phone", "Notification guard for WhatsApp, Telegram and email", "Share-to-check from any app", "Scam-caller warnings from 1930 + community reports", "Built-in UPI QR scanner"]],
+      ["LATER · YEAR 2–3", P.amber, P.ink, ["Bank SDK: white-label inside bank apps", "Live-call guard for “digital arrest”", "Family mode: alert a trusted relative", "Anonymous scam-trend dashboard for banks and I4C", "Garo, Kokborok when Bhashini adds them; iOS"]],
+    ];
+    const cwid = 2.72, gap = 0.18;
+    cols.forEach(([h, fill, hc, items], i) => {
+      const x = M + i * (cwid + gap), hi = i === 1;
+      box(s, x, 1.62, cwid, 3.78, hi ? P.panel2 : "161413", { t: hi ? 0 : 30, line: hi ? P.coral : "3A3633", lw: hi ? 1.5 : 1, name: h });
+      pill(s, x + 0.18, 1.78, cwid - 0.36, 0.34, h, fill, hc, 10);
+      T(s, items.map((t, j) => ({ text: t, options: { bullet: { indent: 12 }, ...(j < items.length - 1 ? { breakLine: true } : {}) } })),
+        { x: x + 0.14, y: 2.32, w: cwid - 0.26, h: 3.0, fontSize: 13, color: hi ? "FFFFFF" : P.ltext, paraSpaceAfter: 9 });
+    });
+    box(s, M, 5.58, 3 * cwid + 2 * gap, 0.88, P.panel, { name: "privacy rule" });
+    T(s, [{ text: "Privacy stays the rule.  ", options: { bold: true, color: P.coralLt } }, { text: "A small model on the phone reads SMS there — messages never leave it. Only anonymous counts (“KYC scam, Assam, today”) are shared, with consent." }],
+      { x: M + 0.22, y: 5.58, w: 3 * cwid + 2 * gap - 0.4, h: 0.88, fontSize: 12, color: "FFFFFF", valign: "middle" });
+
+    // Phone mock-up: the Android app catching a scam SMS
+    const px = 9.62, py = 1.45, pw2 = 2.95, ph = 5.25;
+    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: px, y: py, w: pw2, h: ph, rectRadius: 0.4, fill: { color: "0D0C0B" }, line: { color: "4A4541", width: 1.5 }, objectName: "phone body" });
+    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: px + 0.1, y: py + 0.1, w: pw2 - 0.2, h: ph - 0.2, rectRadius: 0.32, fill: { color: "F4EFEA" }, line: { color: "F4EFEA", width: 0 }, objectName: "phone screen" });
+    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: px + pw2 / 2 - 0.4, y: py + 0.18, w: 0.8, h: 0.16, rectRadius: 0.08, fill: { color: "0D0C0B" }, line: { color: "0D0C0B", width: 0 }, objectName: "camera" });
+    T(s, "9:41", { x: px + 0.3, y: py + 0.16, w: 0.6, h: 0.2, fontSize: 8, bold: true, color: P.ink });
+    // notification
+    box(s, px + 0.2, py + 0.5, pw2 - 0.4, 1.05, "FFFFFF", { r: 0.14, shadow: true, name: "notification" });
+    s.addImage({ path: A("mark.png"), x: px + 0.32, y: py + 0.62, w: 0.3, h: 0.3, objectName: "app mark", altText: "" });
+    T(s, [{ text: "Pause & Verify", options: { bold: true, color: P.ink, fontSize: 9.5, breakLine: true } }, { text: "Scam SMS held back", options: { bold: true, color: P.coralInk, fontSize: 9.5 } }], { x: px + 0.7, y: py + 0.58, w: 1.9, h: 0.42 });
+    T(s, "VM-SBIBNK: “Update KYC…” — the link isn’t SBI’s. Not opened.", { x: px + 0.32, y: py + 1.02, w: pw2 - 0.6, h: 0.46, fontSize: 8.5, color: P.text });
+    // sms bubble with underlines
+    box(s, px + 0.2, py + 1.75, pw2 - 0.6, 1.25, "FFFFFF", { r: 0.14, name: "sms" });
+    T(s, [{ text: "Dear Customer, your SBI account " }, { text: "will be BLOCKED today", options: { color: P.coralInk, underline: { style: "wavy", color: P.coralInk } } }, { text: ". " }, { text: "Update KYC", options: { color: P.coralInk, underline: { style: "wavy", color: P.coralInk } } }, { text: ": sbi-kyc.xyz" }],
+      { x: px + 0.32, y: py + 1.83, w: pw2 - 0.85, h: 1.1, fontSize: 9.5, color: P.text });
+    // alert sheet
+    box(s, px + 0.2, py + 3.25, pw2 - 0.4, 1.7, "FFFFFF", { r: 0.18, shadow: true, name: "alert sheet" });
+    T(s, "Hold on. This looks like a scam.", { x: px + 0.34, y: py + 3.36, w: pw2 - 0.6, h: 0.3, fontSize: 10.5, bold: true, color: P.ink });
+    T(s, "উচ্চ বিপদাশংকা · 4 warning signs", { x: px + 0.34, y: py + 3.66, w: pw2 - 0.6, h: 0.24, fontSize: 8.5, color: P.muted });
+    box(s, px + 0.34, py + 4.0, pw2 - 0.68, 0.36, P.ink, { r: 0.18, name: "why button" });
+    T(s, "Show me why", { x: px + 0.34, y: py + 4.0, w: pw2 - 0.68, h: 0.36, fontSize: 9.5, bold: true, color: "FFFFFF", align: "center", valign: "middle" });
+    box(s, px + 0.34, py + 4.44, pw2 - 0.68, 0.36, "C8323C", { r: 0.18, name: "1930 button" });
+    T(s, "Lost money? Call 1930", { x: px + 0.34, y: py + 4.44, w: pw2 - 0.68, h: 0.36, fontSize: 9.5, bold: true, color: "FFFFFF", align: "center", valign: "middle" });
+    src(s, "Phone screen is a concept for the Android app; everything under “Now” is built and working today.", true, 6.62);
+    s.addNotes(NOTES.future);
+  }
+
+  // ════ 7 · Conclusion ══════════════════════════════════════════════════
   pres.addSection({ title: "Close" });
   {
     const s = slide("Ink", "Close", "CONCLUSION", "");
@@ -341,12 +399,12 @@ function pchip(pts, n) {
     // Proof, not promises: what the prototype did on live public websites.
     box(s, 8.95, 1.15, 3.78, 3.75, P.panel, { name: "proof card" });
     T(s, "PROVEN ON REAL WEBSITES", { x: 9.2, y: 1.32, w: 3.4, h: 0.28, fontSize: 12, bold: true, color: P.coralLt, charSpacing: 1 });
-    T(s, [{ text: "Caught the scam", options: { bold: true, color: "FFFFFF", fontSize: 13, breakLine: true } },
-      { text: "Kotak Bank and RBL Bank fraud alerts, Mokokchung Times, OneIndia" }], { x: 9.2, y: 1.72, w: 3.35, h: 0.8, fontSize: 11.5, color: P.ltext, paraSpaceAfter: 2 });
+    T(s, [{ text: "Found the scam", options: { bold: true, color: "FFFFFF", fontSize: 13, breakLine: true } },
+      { text: "Underlined the scam SMS quoted by Mokokchung Times, OneIndia and ScamDekho" }], { x: 9.2, y: 1.72, w: 3.35, h: 0.8, fontSize: 11.5, color: P.ltext, paraSpaceAfter: 2 });
     T(s, [{ text: "Stayed quiet", options: { bold: true, color: "FFFFFF", fontSize: 13, breakLine: true } },
-      { text: "SBI, Flipkart, Wikipedia, NDTV: no false alarms" }], { x: 9.2, y: 2.58, w: 3.35, h: 0.62, fontSize: 11.5, color: P.ltext, paraSpaceAfter: 2 });
+      { text: "Wikipedia, NDTV, Flipkart; advice pages get no pop-up" }], { x: 9.2, y: 2.58, w: 3.35, h: 0.62, fontSize: 11.5, color: P.ltext, paraSpaceAfter: 2 });
     s.addShape(pres.shapes.LINE, { x: 9.2, y: 3.35, w: 3.3, h: 0, line: { color: "3A3633", width: 0.75 }, objectName: "proof divider" });
-    [["14/14", "engine tests"], ["9", "languages"], ["0", "messages stored"]].forEach(([b, c], i) => {
+    [["18/18", "engine tests"], ["9", "languages"], ["0", "messages stored"]].forEach(([b, c], i) => {
       const x = 9.2 + i * 1.12;
       T(s, b, { x, y: 3.5, w: 1.1, h: 0.5, fontSize: 24, bold: true, color: "FFFFFF", valign: "middle" });
       T(s, c, { x, y: 4.0, w: 1.1, h: 0.5, fontSize: 10.5, color: P.ltext });
@@ -357,10 +415,10 @@ function pchip(pts, n) {
     T(s, [{ text: "Team Commit&Run", options: { bold: true, color: "FFFFFF", breakLine: true } }, { text: "Veeshal D Bodosa  ·  Mrinmoy Banikya  ·  Deepjyoti Dey" }], { x: M + 2.35, y: 5.86, w: 4.9, h: 0.62, fontSize: 12, color: P.ltext, valign: "middle", paraSpaceAfter: 2 });
     T(s, [{ text: "Try it", options: { bold: true, color: P.coralLt, fontSize: 12, breakLine: true } }, { text: LIVE, options: { bold: true, color: "FFFFFF", fontSize: 14 } }], { x: 7.4, y: 5.88, w: 4.15, h: 0.6, align: "right" });
     s.addImage({ data: qr, x: 11.78, y: 5.86, w: 0.95, h: 0.95, objectName: "QR code", altText: "QR code to " + LIVE });
-    s.addNotes("45 seconds. Scams win by rushing people; Pause & Verify gives them a pause, in their own language. This isn't a promise: on live websites it caught the fraud examples on Kotak's and RBL's pages and on Mokokchung Times, and stayed silent on SBI, Flipkart and Wikipedia. Next 90 days: Chrome Web Store, three colleges, Android, a first bank. Scan the code to try it. Thank you from Veeshal, Mrinmoy and Deepjyoti.");
+    s.addNotes(NOTES.conclusion);
   }
 
-  // ════ 7 · Supporting: prototype showcase ══════════════════════════════
+  // ════ 8 · Supporting: prototype showcase ══════════════════════════════
   pres.addSection({ title: "Supporting" });
   {
     const s = slide("Ink", "Supporting", "PROTOTYPE SHOWCASE", "Working today: a Chrome extension on real pages, a web demo and a checker.");
@@ -374,12 +432,12 @@ function pchip(pts, n) {
     T(s, "Reads the QR", { x: 8.85, y: 4.55, w: cw, h: 0.28, fontSize: 12.5, bold: true, color: "FFFFFF", align: "center" });
     s.addImage({ path: A("mark.png"), x: 11.25, y: 1.75, w: 0.6, h: 0.6, objectName: "mark", altText: "" });
     T(s, [{ text: "9 languages", options: { bold: true, color: "FFFFFF", fontSize: 18, breakLine: true } }, { text: "7 from the Northeast", options: { color: P.ltext, fontSize: 11, breakLine: true } }, { text: " ", options: { breakLine: true } },
-      { text: "14 / 14", options: { bold: true, color: "FFFFFF", fontSize: 18, breakLine: true } }, { text: "engine tests pass", options: { color: P.ltext, fontSize: 11, breakLine: true } }, { text: " ", options: { breakLine: true } },
+      { text: "18 / 18", options: { bold: true, color: "FFFFFF", fontSize: 18, breakLine: true } }, { text: "engine tests pass", options: { color: P.ltext, fontSize: 11, breakLine: true } }, { text: " ", options: { breakLine: true } },
       { text: "~8 s", options: { bold: true, color: "FFFFFF", fontSize: 18, breakLine: true } }, { text: "screenshot → verdict", options: { color: P.ltext, fontSize: 11 } }],
       { x: 11.0, y: 2.5, w: 1.75, h: 2.4 });
     s.addImage({ path: A("card-paused.png"), x: 6.75, y: 4.95, w: 4.2, h: 4.2 / PAUSED, objectName: "Paused link", altText: "Paused. This link isn't what it seems." });
     T(s, [{ text: "Code:  ", options: { bold: true, color: P.coralLt } }, { text: "github.com/vxwshxl/pauseverify", options: { bold: true, color: "FFFFFF" } }], { x: M, y: 6.35, w: 8, h: 0.3, fontSize: 14 });
-    s.addNotes("Supporting slide, if time allows: the extension on a real page, the explanation in Assamese, the QR truth, and a fake link paused before it opens.");
+    s.addNotes(NOTES.showcase);
   }
 
   await pres.writeFile({ fileName: OUT });
