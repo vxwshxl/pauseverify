@@ -1,11 +1,7 @@
 "use client";
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, MotionConfig, motion } from "motion/react";
-import {
-  ArrowUp, BadgeCheck, Clock, Eye, EyeOff, Gift, IndianRupee, KeyRound, Lock, MessageCircle, Phone, QrCode,
-  ScanSearch, ShieldAlert, ShieldCheck, Siren, Smartphone, UserRound, Users, X, Link2, TriangleAlert, Volume2, Square,
-  Languages, ChevronDown, Check,
-} from "lucide-react";
+import { ArrowUp, BadgeCheck, Clock, Eye, EyeOff, Gift, IndianRupee, KeyRound, Lock, MessageCircle, Phone, QrCode, ScanSearch, ShieldAlert, ShieldCheck, Siren, Smartphone, UserRound, Users, X, Link2, TriangleAlert, Volume2, Square, Languages, ChevronDown, Check, CalendarClock, ArrowRightLeft, FormInput, Globe } from "lucide-react";
 import type { Analysis, Flag, Lang } from "@pv/engine";
 import { HELP } from "@pv/engine";
 import { SUGGESTIONS, localAnswer } from "./answers.ts";
@@ -70,6 +66,9 @@ const FLAG_ICON: Record<Flag["kind"], typeof Clock> = {
   unofficial_contact: MessageCircle,
   impersonation: UserRound,
   qr_payment: QrCode,
+  fake_login: FormInput,
+  redirect: ArrowRightLeft,
+  new_domain: CalendarClock,
 };
 
 const SPRING = { type: "spring", stiffness: 420, damping: 38, mass: 0.9 } as const;
@@ -229,10 +228,12 @@ export function Island(props: IslandProps) {
       if (e.button !== 0) return;
       const start = { x: e.clientX, y: e.clientY, ox: offsetRef.current.x, oy: offsetRef.current.y, moved: false };
       drag.current = start;
+      // Freeze layout animations from the first press, so no spring is mid-flight when moving starts.
+      setDragging(true);
       const move = (ev: PointerEvent) => {
         const dx = ev.clientX - start.x, dy = ev.clientY - start.y;
         if (!start.moved && Math.hypot(dx, dy) < 5) return;
-        if (!start.moved) { start.moved = true; setDragging(true); setPeek(false); }
+        if (!start.moved) { start.moved = true; setPeek(false); }
         ev.preventDefault();
         setOffset({ x: start.ox + dx, y: start.oy + dy });
       };
@@ -241,8 +242,8 @@ export function Island(props: IslandProps) {
         removeEventListener("pointerup", up, true);
         removeEventListener("pointercancel", up, true);
         drag.current = null;
-        if (!start.moved) return;
         setDragging(false);
+        if (!start.moved) return;
         justDragged.current = true;
         setTimeout(() => { justDragged.current = false; }, 0);
         commit(offsetRef.current);
@@ -298,6 +299,9 @@ export function Island(props: IslandProps) {
                   // Scale-corrects the content while the shell morphs (circle ↔ squircle), so it
                   // doesn't stretch and wobble mid-animation.
                   layout="position"
+                  // The content must not chase the shell with its own spring while dragging, or the
+                  // mark slides out of the circle and gets clipped.
+                  layoutDependency={dragging ? "drag" : undefined}
                   initial={{ opacity: 0, scale: 0.98 }}
                   animate={{ opacity: 1, scale: 1, transition: { duration: 0.18, delay: 0.06 } }}
                   exit={{ opacity: 0, scale: 0.98, transition: { duration: 0.1 } }}
@@ -597,6 +601,19 @@ function Sheet({ analysis, onAsk, onLook, onClose, translate, speak, stopSpeakin
                     );
                   })}
                 </ul>
+                {analysis.page && (
+                  <div className="pv-link">
+                    <span className="pv-badge-icon" data-level={analysis.page.error ? "caution" : analysis.page.asks.length ? "high" : "safe"} style={{ width: 36, height: 36, borderRadius: 12 }}><Globe /></span>
+                    <div style={{ minWidth: 0 }}>
+                      <div className="pv-link-domain" style={{ fontFamily: "inherit", fontWeight: 600, letterSpacing: 0 }}>{analysis.page.error ? t("We couldn’t open the link") : analysis.page.title || t("We opened the link")}</div>
+                      <p className="pv-link-reason">
+                        {analysis.page.error
+                          ? t(analysis.page.error)
+                          : [t("Opened safely on our server, without running it"), analysis.page.hops.length > 1 ? `${analysis.page.hops.length - 1} ${t("redirects")}` : "", analysis.page.registered ? `${t("online since")} ${analysis.page.registered.slice(0, 4)}` : ""].filter(Boolean).join(" · ")}
+                      </p>
+                    </div>
+                  </div>
+                )}
                 {[...riskyLinks, ...officialLinks].map((l) => (
                   <div key={l.url + l.span.start} className="pv-link">
                     <span className="pv-badge-icon" data-level={l.verdict === "official" ? "safe" : l.verdict === "unknown" ? "caution" : "high"} style={{ width: 36, height: 36, borderRadius: 12 }}>

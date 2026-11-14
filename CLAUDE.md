@@ -47,6 +47,12 @@ Hackathon project (PS05 anti-scam assistant). pnpm + Turborepo monorepo — a se
   the English fallback kept a language stuck in English. The island also retries once.
 - **mask():** a code followed by punctuation ("OTP 482913, what…") is still a code; only a digit
   after `,`/`.` makes it part of an amount (₹5,000).
+- **Links are opened on the server** (`/api/page`, `server/inspect.ts`) by the web checker and the
+  extension's "check link": redirects followed hop by hop, every hop refused if it resolves to a
+  private/loopback/metadata address or uses a non-web port, 8 s / 1 MB caps, no scripts run. Domain
+  age comes from rdap.org, which returns 403 to Node's default user-agent — keep the UA header.
+  The engine turns the facts into `fake_login`, `redirect`, `new_domain` flags; pages *about*
+  scams or fact-checks (BOOM, Alt News) stay safe.
 - **Production:** Vercel project `pauseverify` (root `apps/web`), https://pauseverify.vercel.app,
   deploys on push to `main`. Extension release builds read `apps/extension/.env.production`
   (`WXT_API_URL=https://pauseverify.vercel.app`, gitignored — recreate it if missing, or the

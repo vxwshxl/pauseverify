@@ -70,3 +70,26 @@ test("a real scam that calls itself genuine is still a scam", () => {
   assert.ok(!a.aboutScams);
   assert.ok(a.flags.some((f) => f.kind === "reward") && a.flags.some((f) => f.kind === "payment"));
 });
+
+const page = (p: Partial<import("./types.ts").PageFacts>) => ({ url: "", finalUrl: "", hops: [], title: "", description: "", text: "", asks: [], ...p });
+
+test("an opened page that asks for an OTP on a new site is high risk", () => {
+  const url = "https://secure-kyc-portal.in/login";
+  const a = analyze({ text: url, page: page({ url, finalUrl: url, title: "SBI KYC Update", text: "Enter your Customer ID and OTP to complete KYC", asks: ["password", "OTP"], ageDays: 4, registered: "2026-11-10" }) });
+  assert.equal(a.level, "high", `score ${a.score}: ${a.flags.map((f) => f.kind)}`);
+  for (const k of ["fake_login", "new_domain", "impersonation"]) assert.ok(a.flags.some((f) => f.kind === k), k);
+});
+
+test("a shortened link is judged by where it really goes", () => {
+  const a = analyze({ text: "bit.ly/abc", page: page({ url: "https://bit.ly/abc", finalUrl: "https://amaz0n-refunds.in/claim", hops: ["https://bit.ly/abc", "https://amaz0n-refunds.in/claim"], title: "Claim your refund" }) });
+  assert.ok(a.flags.some((f) => f.kind === "redirect"));
+  assert.ok(a.links.some((l) => l.domain === "amaz0n-refunds.in" && l.verdict === "lookalike"));
+  assert.equal(a.level, "high");
+});
+
+test("a fact-check page is opened and found safe", () => {
+  const url = "https://www.boomlive.in/fact-check/image-is-digitally-altered-32492";
+  const a = analyze({ text: url, page: page({ url, finalUrl: url, title: "Image Of Indian Embassy Counsellor At Anti-Pak Protest Is Digitally Altered", text: "Fact Check. BOOM found the viral image was digitally altered. The claim is false.", registered: "2013-03-01", ageDays: 4000 }) });
+  assert.equal(a.level, "safe", `score ${a.score}: ${a.flags.map((f) => f.kind)}`);
+  assert.match(a.links[0]!.reason, /opened it safely.*since 2013/);
+});

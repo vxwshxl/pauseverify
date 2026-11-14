@@ -2,7 +2,7 @@ import { DIRECTORY, HELP } from "./directory.ts";
 import { extractLinks, analyzeUrl } from "./links.ts";
 import { ABOUT_SCAMS, FAKE_REASSURANCE, OTP_DELIVERY, RULES } from "./rules.ts";
 import { parseUpi } from "./upi.ts";
-import type { Analysis, Entity, Flag, LinkReport, RiskLevel, Span } from "./types.ts";
+import type { Analysis, Entity, Flag, LinkReport, PageFacts, RiskLevel, Span } from "./types.ts";
 
 const LINK_WEIGHT: Record<LinkReport["verdict"], number> = { lookalike: 45, suspicious: 25, shortener: 15, unknown: 4, official: 0 };
 
@@ -28,6 +28,8 @@ export interface AnalyzeInput {
   seen?: string;
   /** The page around this text is about scams (set by the extension from the page title). */
   about?: boolean;
+  /** What the linked page turned out to be, when it was opened on the server. */
+  page?: PageFacts;
 }
 
 /** Does this text discuss scams rather than run one? */
@@ -48,7 +50,7 @@ export function quotedRanges(text: string): [number, number][] {
   return out;
 }
 
-export function analyze({ text, qr, seen, about }: AnalyzeInput): Analysis {
+export function analyze({ text, qr, seen, about, page }: AnalyzeInput): Analysis {
   const flags: Flag[] = [];
   const otpDelivery = OTP_DELIVERY.test(text);
   // Advice and news about scams mention OTPs, AnyDesk and "account blocked" too. There, only the
@@ -70,10 +72,13 @@ export function analyze({ text, qr, seen, about }: AnalyzeInput): Analysis {
   }
 
   // A message that names an organisation but links somewhere else is impersonation.
+  const opened = page && !page.error ? pageFlags(page, links) : null;
+  if (opened) flags.push(...opened.flags);
+
   const judged = aboutScams ? quotes.map(([a, b]) => text.slice(a, b)).join("\n") : text;
-  const entity = claimed(judged) ?? links.find((l) => l.verdict === "lookalike")?.entity;
+  const entity = claimed(judged) ?? (opened?.official ? undefined : opened?.claims) ?? links.find((l) => l.verdict === "lookalike")?.entity;
   const badLink = links.find((l) => l.verdict === "lookalike" || l.verdict === "suspicious" || l.verdict === "shortener");
-  const hasRisk = flags.some((f) => ["threat", "credentials", "payment", "reward"].includes(f.kind));
+  const hasRisk = flags.some((f) => ["threat", "credentials", "payment", "reward", "fake_login"].includes(f.kind));
   if (entity && (badLink || (hasRisk && !links.some((l) => l.verdict === "official")))) {
     const at = aboutScams ? quotes[0]?.[0] ?? 0 : 0;
     const m = text.slice(at).match(entity.mentions);
@@ -109,6 +114,7 @@ export function analyze({ text, qr, seen, about }: AnalyzeInput): Analysis {
   if (has("reward") && (badLink || has("unofficial_contact"))) score += 15;
   if (has("family") && (has("payment") || has("urgency"))) score += 15;
   if (has("threat") && has("secrecy")) score += 15;
+  if (has("fake_login") && (has("new_domain") || has("redirect") || badLink)) score += 15;
   if (otpDelivery && !badLink && flags.length === 0) score = Math.min(score, 5);
   score = Math.max(0, Math.min(99, Math.round(score)));
 
@@ -129,7 +135,8 @@ export function analyze({ text, qr, seen, about }: AnalyzeInput): Analysis {
       ? linkNote ? `No warning signs · ${linkNote}` : "No warning signs found"
       : [`${signs} warning sign${signs === 1 ? "" : "s"}`, linkNote].filter(Boolean).join(" · ");
 
-  return { score, level, headline, summary, flags, links, claimedEntity: entity, steps: steps(level, flags, links, entity), upi, seen, aboutScams: aboutScams || undefined };
+  const pageInfo = page ? (({ text: _t, ...rest }) => rest)(page) : undefined;
+  return { score, level, headline, summary, flags, links, claimedEntity: entity, steps: steps(level, flags, links, entity), upi, seen, aboutScams: aboutScams || undefined, page: pageInfo };
 }
 
 function shortName(e: Entity) {
@@ -140,6 +147,7 @@ function steps(level: RiskLevel, flags: Flag[], links: LinkReport[], entity?: En
   const has = (k: Flag["kind"]) => flags.some((f) => f.kind === k);
   const out: string[] = [];
   const bad = links.some((l) => l.verdict !== "official" && l.verdict !== "unknown");
+  if (has("fake_login")) out.push("Don’t type anything into that page — no password, OTP, PIN or card number.");
   if (bad) out.push("Don’t tap the link.");
   if (has("qr_payment")) out.push("Don’t scan the QR code. You never scan a QR to receive money.");
   if (has("remote_access")) out.push("Don’t install any app they send. If you already did, uninstall it and restart your phone.");
@@ -153,4 +161,66 @@ function steps(level: RiskLevel, flags: Flag[], links: LinkReport[], entity?: En
   if (level === "high") out.push(`Already paid or shared details? Call ${HELP.helpline} now, or report at ${HELP.portal}.`);
   if (level === "safe") out.push(entity?.app ? `Still unsure? Check in the ${entity.app} app.` : "Still unsure? Contact the company through its official app or website.");
   return [...new Set(out)];
+}
+
+const quoteOnly = (sp: Span): Span => ({ start: -1, end: -1, text: sp.text });
+
+/** Warning signs from the page a link opens: where it really goes, what it asks for, how new it is, what it says. */
+function pageFlags(page: PageFacts, links: LinkReport[]): { flags: Flag[]; official: boolean; claims?: Entity } {
+  const flags: Flag[] = [];
+  const start = analyzeUrl(page.url);
+  const end = analyzeUrl(page.finalUrl, { start: -1, end: -1, text: page.finalUrl });
+  const official = end?.verdict === "official";
+  if (!end) return { flags, official };
+
+  // Make the link card say what we actually saw, not just "unknown website".
+  const since = page.registered ? `, online since ${page.registered.slice(0, 4)}` : "";
+  if (end.verdict === "unknown") end.reason = page.asks.length
+    ? `We opened it safely. It has a form asking for your ${list(page.asks)}${since}.`
+    : `We opened it safely: no login or payment form${since}.`;
+  for (const l of links) if (l.domain === end.domain && l.verdict === end.verdict) l.reason = end.reason;
+  if (start && start.domain !== end.domain && !links.some((l) => l.domain === end.domain)) links.push(end);
+
+  if (official) return { flags, official };
+
+  if (start && start.domain !== end.domain) {
+    flags.push({
+      kind: "redirect",
+      title: `It really goes to ${end.domain}`,
+      detail: `The link you see sends you on to ${end.domain}. Hiding where a link goes is a common trick — judge the website you end up on.`,
+      spans: [{ start: -1, end: -1, text: end.domain }],
+      weight: start.verdict === "shortener" ? 10 : 15,
+    });
+  }
+  if (page.asks.length) {
+    flags.push({
+      kind: "fake_login",
+      title: `This page asks for your ${list(page.asks)}`,
+      detail: "Only type these into your bank’s own app, or its website that you typed in yourself — never into a page you reached from a message.",
+      spans: [],
+      weight: 40,
+    });
+  }
+  if (page.ageDays != null && page.ageDays < 180) {
+    flags.push({
+      kind: "new_domain",
+      title: page.ageDays < 31 ? `Website made ${Math.max(1, page.ageDays)} day${page.ageDays === 1 ? "" : "s"} ago` : `Website is only ${Math.round(page.ageDays / 30)} months old`,
+      detail: "Scam websites are usually brand new and disappear within weeks. Real banks, shops and offices have had theirs for years.",
+      spans: [],
+      weight: page.ageDays < 31 ? 30 : 12,
+    });
+  }
+  // What the page itself says. An article or fact-check *about* scams doesn't count against it.
+  const inner = analyze({ text: [page.title, page.description, page.text].filter(Boolean).join("\n") });
+  if (!inner.aboutScams) {
+    for (const f of inner.flags) {
+      if (f.kind === "impersonation" || flags.some((x) => x.kind === f.kind)) continue;
+      flags.push({ ...f, spans: f.spans.slice(0, 1).map(quoteOnly) });
+    }
+  }
+  return { flags, official, claims: claimed(page.title) ?? end.entity };
+}
+
+function list(items: string[]) {
+  return items.length <= 1 ? items.join("") : `${items.slice(0, -1).join(", ")} and ${items.at(-1)}`;
 }

@@ -2,7 +2,7 @@
 import { useRef, useState } from "react";
 import jsQR from "jsqr";
 import { ArrowUp, Eye, ImageUp, Link2, Loader2, X } from "lucide-react";
-import { analyze, SAMPLES, type Analysis } from "@pv/engine";
+import { analyze, extractLinks, SAMPLES, type Analysis, type PageFacts } from "@pv/engine";
 import { Highlighted, Island, toJpeg } from "@pv/island";
 import { services, useIslandServices } from "@/components/use-island-services";
 
@@ -34,15 +34,20 @@ export function Checker() {
   const file = useRef<HTMLInputElement>(null);
   const ai = useIslandServices(checked?.text);
 
-  function run(t = text, s: Shot | null = shot) {
+  async function run(t = text, s: Shot | null = shot) {
     const body = [t.trim(), s?.text].filter(Boolean).join("\n");
     if (!body && !s?.qr) return;
     setScanning(true);
     setChecked(null);
-    setTimeout(() => {
-      setChecked({ text: body, analysis: analyze({ text: body, qr: s?.qr ?? undefined, seen: s?.seen }) });
-      setScanning(false);
-    }, 450);
+    // A link is opened safely on our server, so the verdict is about the real page: where it ends
+    // up, what its forms ask for, how new the site is. Official links don't need it.
+    const link = extractLinks(body).find((l) => l.verdict !== "official");
+    const [page] = await Promise.all([
+      link ? services.inspectPage(link.url).catch((): PageFacts | undefined => undefined) : Promise.resolve(undefined),
+      new Promise((r) => setTimeout(r, 450)),
+    ]);
+    setChecked({ text: body, analysis: analyze({ text: body, qr: s?.qr ?? undefined, seen: s?.seen, page }) });
+    setScanning(false);
   }
 
   async function pick(f: File | undefined) {

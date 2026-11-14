@@ -113,6 +113,8 @@ export const ABOUT_SCAMS: RegExp[] = [
   /\b(change|reset) your (\w+ ){0,2}(password|pin|passcode)\b|\b(block|freeze) your (card|account|upi)\b|\buninstall\b|\bfactory reset\b/i,
   /\b(report (it|this|them|the (fraud|number|incident|message)|to (the )?(police|bank|cyber))|how to (spot|avoid|identify|protect|stay|recogni[sz]e)|fraud (alert|awareness|prevention)|safe banking|awareness)\b/i,
   /साइबर अपराध|धोखेबाज़|धोखेबाज|ठगी से बचें|সাইবাৰ অপৰাধ|প্ৰতাৰকৰ পৰা সাৱধান/,
+  // Fact-checks and news about fakes (BOOM, Alt News, PIB Fact Check…) describe misinformation; they aren't scams.
+  /\b(fact[- ]?check(ed|ing)?|misinformation|disinformation|digitally (altered|edited|manipulated)|morphed|debunk(ed|s)?|fake news|viral (claim|video|image|post))\b/i,
 ];
 /** A scam message pretending to be safe ("100% genuine, not a scam") doesn't count as advice. */
 export const FAKE_REASSURANCE = /\b(not a scam|no scam|100% (genuine|real|legit)|this is (genuine|legit))\b/i;

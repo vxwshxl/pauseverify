@@ -11,7 +11,10 @@ export type FlagKind =
   | "family"
   | "unofficial_contact"
   | "impersonation"
-  | "qr_payment";
+  | "qr_payment"
+  | "fake_login"
+  | "redirect"
+  | "new_domain";
 
 export interface Span {
   start: number;
@@ -91,7 +94,29 @@ export interface Analysis {
    * judged, and the extension underlines them without raising an alert.
    */
   aboutScams?: boolean;
+  /** What we found when the link was opened on our server (website checker, extension "check link"). */
+  page?: Omit<PageFacts, "text">;
 }
 
 /** English, Hindi and every Northeast language Bhashini serves (checked 2026-11-14). */
 export type Lang = "en" | "hi" | "as" | "brx" | "bn" | "mni" | "ne" | "kha" | "lus";
+
+/** Facts about a web page, gathered safely on the server (no scripts run, private addresses refused). */
+export interface PageFacts {
+  url: string;
+  /** Where the link really ends up after redirects. */
+  finalUrl: string;
+  hops: string[];
+  status?: number;
+  title: string;
+  description: string;
+  /** Visible text, trimmed. */
+  text: string;
+  /** Secrets the page's forms ask for. */
+  asks: string[];
+  /** When the domain was registered (RDAP), ISO date, and how many days ago. */
+  registered?: string;
+  ageDays?: number;
+  /** Set when the page couldn't be opened; the rest is then empty. */
+  error?: string;
+}

@@ -1,4 +1,4 @@
-import type { Analysis, Lang } from "@pv/engine";
+import type { Analysis, Lang, PageFacts } from "@pv/engine";
 import { mask } from "@pv/engine";
 
 /** Sends a JSON POST to the Pause & Verify API. The extension swaps in a background-worker relay. */
@@ -67,6 +67,9 @@ export function createServices(post: Post) {
     },
 
     readImage: (dataUrl: string) => post<ImageRead>("/api/vision", { image: dataUrl }),
+
+    /** Opens a link safely on the server: where it really goes, what it asks for, how old the site is. */
+    inspectPage: (url: string) => post<PageFacts>("/api/page", { url }),
   };
 }
 

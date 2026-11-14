@@ -164,7 +164,14 @@ export function App({ host }: { host: HTMLElement }) {
           if (res?.ok && res.dataUrl) checkImage(res.dataUrl, msg.text ?? "");
         });
       } else if (msg.text) showResult(analyze({ text: msg.text }), msg.text);
-      else if (msg.link) showResult(analyze({ text: msg.link }), msg.link);
+      else if (msg.link) {
+        // Right-click → check link: open it safely on our server first, then judge the real page.
+        const link = msg.link;
+        setScanning(true);
+        services.inspectPage(link).catch(() => undefined)
+          .then((page) => showResult(analyze({ text: link, page }), link))
+          .finally(() => setScanning(false));
+      }
     };
     browser.runtime.onMessage.addListener(onMsg);
     return () => browser.runtime.onMessage.removeListener(onMsg);
