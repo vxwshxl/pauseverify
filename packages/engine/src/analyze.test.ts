@@ -34,3 +34,11 @@ test("UPI QR to 'receive' money is high risk and shows the amount", () => {
   assert.equal(a.upi?.amount, 5000);
   assert.equal(a.level, "high");
 });
+
+test("ordinary shop and site text is not flagged", () => {
+  for (const t of ["Download App · Become a Seller · Gift Cards · Help Center", "Install the Flipkart app for faster shopping"]) {
+    const a = analyze({ text: t });
+    assert.ok(!a.flags.some((f) => f.kind === "remote_access"), t);
+  }
+  assert.equal(analyze({ text: "Please install this app AnyDesk so I can help you" }).flags.some((f) => f.kind === "remote_access"), true);
+});

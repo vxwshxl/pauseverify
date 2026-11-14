@@ -41,16 +41,22 @@ export function scan(host: Element): Found[] {
   }
   const found: Found[] = [];
   for (const block of blocks) {
+    if (isNavigation(block)) continue;
     const nodes = textNodes(block, host);
     // Text from different paragraphs is joined with a line break, never glued together:
     // "…they appear." + "Live demo…" must not read as the link "appear.live".
     let at = 0;
     let text = "";
     let prevBlock: Element | null = null;
+    let prevNode: Text | null = null;
     const map = nodes.map((node) => {
       const nb = node.parentElement!.closest(BLOCK_OR_BREAK);
       if (prevBlock && nb !== prevBlock) { text += "\n"; at += 1; }
+      // Neighbouring inline elements are often spaced by CSS, not by text: "© 2007-2026" and
+      // "Flipkart.com" must not read as the domain "2007-2026Flipkart.com".
+      else if (prevNode && prevNode.parentElement !== node.parentElement && !/\s$/.test(prevNode.data) && !/^\s/.test(node.data)) { text += " "; at += 1; }
       prevBlock = nb;
+      prevNode = node;
       const m = { node, start: at };
       text += node.data;
       at += node.data.length;
@@ -68,6 +74,18 @@ export function scan(host: Element): Found[] {
     if (f) found.push(f);
   }
   return found.sort((a, b) => b.analysis.score - a.analysis.score);
+}
+
+// Menus, headers and footers are labels ("Update KYC", "Net Banking"), not messages. Skipping them
+// stopped false underlines on real bank sites like sbi.co.in.
+const NAV = "nav, header, footer, [role=navigation], [role=menu], [role=menubar], [role=banner], [role=contentinfo]";
+function isNavigation(block: Element) {
+  if (block.closest(NAV)) return true;
+  const all = block.textContent?.replace(/\s+/g, "").length ?? 0;
+  if (!all) return false;
+  let linked = 0;
+  for (const a of block.querySelectorAll("a")) linked += a.textContent?.replace(/\s+/g, "").length ?? 0;
+  return block.querySelectorAll("a").length >= 3 && linked / all > 0.6;
 }
 
 function rangeFor(f: Found, start: number, end: number): Range | null {

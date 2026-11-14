@@ -81,7 +81,7 @@ export const RULES: Rule[] = [
     title: "Asking you to install an app",
     detail: "Apps like AnyDesk or TeamViewer, or an APK file, let a stranger see and control your phone.",
     weight: 30,
-    patterns: [g(String.raw`\b(anydesk|teamviewer|quick ?support|rustdesk|airdroid|screen ?shar(e|ing)|download (this |the )?(app|apk)|install (this |the )?app|\.apk)\b`)],
+    patterns: [g(String.raw`\b(anydesk|teamviewer|quick ?support|rustdesk|airdroid|screen ?shar(e|ing)|(download|install) (this|the|our|my) (app|apk|application)|\.apk)\b`)],
   },
   {
     kind: "family",

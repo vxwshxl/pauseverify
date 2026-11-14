@@ -24,6 +24,9 @@ Hackathon project (PS05 anti-scam assistant). pnpm + Turborepo monorepo — a se
   Meitei Mayek needs the bundled Noto Sans Meetei Mayek font (web public/ and extension public/).
 - **The scanner separates paragraphs with "\n"** when joining a block's text; gluing them made
   "…appear." + "Live demo" read as the link `appear.live` (a false alarm).
+- **The scanner skips navigation** (nav/header/footer/menus, and blocks that are >60% link text) and
+  puts a space between text from different inline elements. Both came from real-site false alarms:
+  SBI's "Update KYC" menu item, and Flipkart's footer "© 2007-2026" + "Flipkart.com" read as a domain.
 - **Sarvam needs `reasoning_effort: null`** or short answers come back empty.
 - **Typed chat questions go to the AI first**; canned answers (`answers.ts`) are only for the
   suggestion chips and as offline fallback. Regex-matching free text gave wrong answers.
