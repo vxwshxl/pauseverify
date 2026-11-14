@@ -101,8 +101,11 @@ function useTranslations(lang: Lang, strings: string[], translate?: IslandProps[
     if (!missing.length) return;
     let live = true;
     setLoading(true);
-    translate(missing, lang)
-      .then((out) => missing.forEach((s, i) => tcache.set(`${lang}:${s}`, out[i] || s)))
+    // Bhashini's models sleep when idle and the first call can fail; try once more before giving up.
+    const once = () => translate(missing, lang);
+    once()
+      .catch(() => new Promise<string[]>((r) => setTimeout(r, 1500)).then(once))
+      .then((out) => missing.forEach((s, i) => { if (out[i] && out[i] !== s) tcache.set(`${lang}:${s}`, out[i]); }))
       .catch(() => {})
       .finally(() => {
         if (!live) return;

@@ -42,3 +42,31 @@ test("ordinary shop and site text is not flagged", () => {
   }
   assert.equal(analyze({ text: "Please install this app AnyDesk so I can help you" }).flags.some((f) => f.kind === "remote_access"), true);
 });
+
+test("advice and news about scams are not scams", () => {
+  // scamdekho.in "If you already fell for a KYC scam" list — a real false alarm.
+  const advice = [
+    "Call your bank's 24×7 helpline and block your card and freeze your account",
+    "Change your net banking password and UPI PIN from a different device if possible",
+    "Factory reset your phone if you installed an APK or gave AnyDesk access",
+    "Call 1930 — National Cyber Crime Helpline — and report the fraud immediately",
+  ];
+  const all = analyze({ text: advice.join("\n") });
+  assert.equal(all.level, "safe", `score ${all.score}, flags ${all.flags.map((f) => f.kind)}`);
+  assert.equal(all.aboutScams, true);
+  for (const t of advice) assert.notEqual(analyze({ text: t }).level, "high", t);
+});
+
+test("a scam quoted inside an article is still judged", () => {
+  const text = "Fraudsters use official-sounding language. The message may read: 'Dear customer, your SBI account will be blocked today. Update KYC immediately at http://sbi-kyc-verify.xyz/update' — never click such links.";
+  const a = analyze({ text });
+  assert.equal(a.aboutScams, true);
+  assert.ok(a.flags.some((f) => f.kind === "credentials"));
+  assert.ok(a.flags.every((f) => f.spans.every((s) => s.start > text.indexOf("'Dear"))), "only quoted words are underlined");
+});
+
+test("a real scam that calls itself genuine is still a scam", () => {
+  const a = analyze({ text: "Part time job, 100% genuine not a scam! Earn ₹3,000 daily liking YouTube videos. Pay registration fee ₹500 to start." });
+  assert.ok(!a.aboutScams);
+  assert.ok(a.flags.some((f) => f.kind === "reward") && a.flags.some((f) => f.kind === "payment"));
+});

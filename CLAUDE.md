@@ -37,6 +37,20 @@ Hackathon project (PS05 anti-scam assistant). pnpm + Turborepo monorepo — a se
   React apps like WhatsApp Web.
 - `isolateEvents: true` on the shadow UI stops chat typing from firing site shortcuts (Gmail).
 - Directory entries show as "verified" only when `reviewed` is set by a person.
+- **Text *about* scams is not a scam.** Advice, news and bank safety pages say "change your net
+  banking password" and "uninstall AnyDesk". `analyze()` sets `aboutScams` (ABOUT_SCAMS in rules.ts,
+  or `about: true` from the extension when the page title/h1/URL is about scams — never for inbox
+  sites like Gmail/WhatsApp, whose titles carry the email subject) and then only judges the
+  messages the text *quotes*. Such blocks are underlined but never pop the alert. Came from a
+  real false alarm on scamdekho.in.
+- **Never cache a failed translation.** Bhashini's idle models sometimes return nothing; caching
+  the English fallback kept a language stuck in English. The island also retries once.
+- **mask():** a code followed by punctuation ("OTP 482913, what…") is still a code; only a digit
+  after `,`/`.` makes it part of an amount (₹5,000).
+- **Production:** Vercel project `pauseverify` (root `apps/web`), https://pauseverify.vercel.app,
+  deploys on push to `main`. Extension release builds read `apps/extension/.env.production`
+  (`WXT_API_URL=https://pauseverify.vercel.app`, gitignored — recreate it if missing, or the
+  extension calls localhost and translations silently stay English).
 
 ## Commands
 

@@ -16,7 +16,7 @@ export interface Found {
   analysis: Analysis;
 }
 
-const cache = new WeakMap<Element, { text: string; found: Found | null }>();
+const cache = new WeakMap<Element, { text: string; about: boolean; found: Found | null }>();
 
 function textNodes(root: Element, host: Element): Text[] {
   const out: Text[] = [];
@@ -31,8 +31,24 @@ function textNodes(root: Element, host: Element): Text[] {
   return out;
 }
 
+// Where scam messages actually arrive. Their titles carry the open email's subject ("Fraud alert:
+// verify your account"), so they never count as a page about scams.
+const INBOXES = /(^|\.)(mail\.google\.com|web\.whatsapp\.com|outlook\.(live|office)\.com|web\.telegram\.org|messages\.google\.com|mail\.yahoo\.com|instagram\.com|facebook\.com|messenger\.com|x\.com)$/;
+const ABOUT_PAGE = /\b(scams?|scammers?|frauds?|fraudsters?|phishing|cyber ?crime|safe[- ]banking|stay safe|be ?aware|awareness|beware|how to (spot|avoid|protect))\b|धोखाधड़ी|ठगी|প্ৰতাৰণা/i;
+
+/**
+ * Is this page an article, guide or bank safety page *about* scams? There, the advice ("change your
+ * password", "uninstall AnyDesk") isn't a threat; only the messages it quotes are judged.
+ */
+export function pageAboutScams(): boolean {
+  if (INBOXES.test(location.hostname)) return false;
+  const h1 = document.querySelector("h1")?.textContent ?? "";
+  return ABOUT_PAGE.test(`${document.title} ${h1} ${decodeURIComponent(location.pathname).replace(/[-_/]/g, " ")}`);
+}
+
 /** Every risky message-sized block on the page, worst first. */
 export function scan(host: Element): Found[] {
+  const about = pageAboutScams();
   const blocks = new Set<Element>();
   for (const n of textNodes(document.body, host)) {
     const b = n.parentElement!.closest(BLOCK) ?? n.parentElement!;
@@ -64,13 +80,13 @@ export function scan(host: Element): Found[] {
     });
     if (text.length < 20 || text.length > 4000) continue;
     const hit = cache.get(block);
-    if (hit && hit.text === text) {
+    if (hit && hit.text === text && hit.about === about) {
       if (hit.found) found.push({ ...hit.found, nodes: map });
       continue;
     }
-    const analysis = analyze({ text });
+    const analysis = analyze({ text, about });
     const f = analysis.level === "safe" ? null : { block, text, nodes: map, analysis };
-    cache.set(block, { text, found: f });
+    cache.set(block, { text, about, found: f });
     if (f) found.push(f);
   }
   return found.sort((a, b) => b.analysis.score - a.analysis.score);

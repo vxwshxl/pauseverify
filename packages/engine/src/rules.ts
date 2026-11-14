@@ -101,5 +101,21 @@ export const RULES: Rule[] = [
   },
 ];
 
+/**
+ * Words that show a text is *about* scams — advice, news, a bank's safety page — rather than a
+ * scam itself. Scam messages never tell you to call 1930, change your password, or report them.
+ * "fraud"/"fraudulent" are left out on purpose: real scams say "fraudulent activity on your account".
+ */
+export const ABOUT_SCAMS: RegExp[] = [
+  /\b(scams?|scammers?|scammed|fraudsters?|cyber ?crimes?|cybercrime\.gov\.in|phishing|1930|victims?|beware|be alert|stay (safe|alert|vigilant)|red flags?|warning signs?)\b/i,
+  /\b(never|do not|don'?t) (share|click|tap|install|give|pay|scan|reply|respond|call back)\b/i,
+  /\bif you (have |had )?(already )?(shared|gave|given|installed|clicked|tapped|fell|lost|paid|sent|downloaded|received|get|got)\b/i,
+  /\b(change|reset) your (\w+ ){0,2}(password|pin|passcode)\b|\b(block|freeze) your (card|account|upi)\b|\buninstall\b|\bfactory reset\b/i,
+  /\b(report (it|this|them|the (fraud|number|incident|message)|to (the )?(police|bank|cyber))|how to (spot|avoid|identify|protect|stay|recogni[sz]e)|fraud (alert|awareness|prevention)|safe banking|awareness)\b/i,
+  /साइबर अपराध|धोखेबाज़|धोखेबाज|ठगी से बचें|সাইবাৰ অপৰাধ|প্ৰতাৰকৰ পৰা সাৱধান/,
+];
+/** A scam message pretending to be safe ("100% genuine, not a scam") doesn't count as advice. */
+export const FAKE_REASSURANCE = /\b(not a scam|no scam|100% (genuine|real|legit)|this is (genuine|legit))\b/i;
+
 /** Phrases that mark a genuine OTP delivery rather than a request for one. */
 export const OTP_DELIVERY = /\b(do not|don'?t|never) share\b|\bis your (otp|one[- ]time password|verification code)\b|किसी के साथ साझा न करें|কাকো নজনাব/i;

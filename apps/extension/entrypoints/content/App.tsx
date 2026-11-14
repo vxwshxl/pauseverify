@@ -49,8 +49,9 @@ export function App({ host }: { host: HTMLElement }) {
     if (!active) return clearPaint();
     const found = scan(host);
     paint(found);
-    // Alert for the worst high-risk message that's on screen and not already dismissed.
-    const pick = found.find((f: Found) => f.analysis.level === "high" && visible(f.block) && !dismissed.current.has(f.text));
+    // Alert for the worst high-risk message that's on screen and not already dismissed. Text that
+    // talks about scams (advice, news, a bank's safety page) is underlined but never pops an alert.
+    const pick = found.find((f: Found) => f.analysis.level === "high" && !f.analysis.aboutScams && visible(f.block) && !dismissed.current.has(f.text));
     if (pick && shown.current !== pick.text) {
       shown.current = pick.text;
       setAsked(false);

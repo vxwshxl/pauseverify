@@ -10,7 +10,7 @@ export async function POST(req: Request) {
   const texts = Array.isArray(body?.texts) ? body.texts.filter((t): t is string => typeof t === "string").slice(0, 80).map((t) => t.slice(0, 1500)) : [];
   const to = body?.to;
   const from = body?.from ?? "en";
-  if (!texts.length || !isLang(to) || !isLang(from)) return json({ error: "Send { texts: string[], to: 'en'|'as'|'brx'|'hi' }" }, 400);
+  if (!texts.length || !isLang(to) || !isLang(from)) return json({ error: "Send { texts: string[], to: 'en'|'hi'|'as'|'brx'|'bn'|'mni'|'ne'|'kha'|'lus' }" }, 400);
   try {
     return json({ texts: await translate(texts, from, to) });
   } catch (e) {

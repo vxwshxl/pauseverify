@@ -1,6 +1,6 @@
 import { DIRECTORY, HELP } from "./directory.ts";
 import { extractLinks, analyzeUrl } from "./links.ts";
-import { OTP_DELIVERY, RULES } from "./rules.ts";
+import { ABOUT_SCAMS, FAKE_REASSURANCE, OTP_DELIVERY, RULES } from "./rules.ts";
 import { parseUpi } from "./upi.ts";
 import type { Analysis, Entity, Flag, LinkReport, RiskLevel, Span } from "./types.ts";
 
@@ -26,15 +26,40 @@ export interface AnalyzeInput {
   qr?: string;
   /** One-sentence description from the vision model, shown as "What I see". */
   seen?: string;
+  /** The page around this text is about scams (set by the extension from the page title). */
+  about?: boolean;
 }
 
-export function analyze({ text, qr, seen }: AnalyzeInput): Analysis {
+/** Does this text discuss scams rather than run one? */
+export function talksAboutScams(text: string): boolean {
+  if (FAKE_REASSURANCE.test(text)) return false;
+  return ABOUT_SCAMS.some((re) => re.test(text));
+}
+
+/**
+ * Stretches of text in quotation marks: the example messages an article or a safety page quotes.
+ * A straight ' only opens after a space or colon and only closes before a space or punctuation,
+ * so apostrophes ("month's") don't end a quote early.
+ */
+export function quotedRanges(text: string): [number, number][] {
+  const out: [number, number][] = [];
+  const re = /“([^”]{12,})”|"([^"]{12,})"|‘([^’]{12,}?)’(?=[\s.,;:!?)]|$)|(?<=^|[\s:(—–-])'([\s\S]{12,}?)'(?=[\s.,;:!?)]|$)/g;
+  for (const m of text.matchAll(re)) out.push([m.index!, m.index! + m[0].length]);
+  return out;
+}
+
+export function analyze({ text, qr, seen, about }: AnalyzeInput): Analysis {
   const flags: Flag[] = [];
   const otpDelivery = OTP_DELIVERY.test(text);
+  // Advice and news about scams mention OTPs, AnyDesk and "account blocked" too. There, only the
+  // messages they quote count: "Change your net banking password" is advice, not a request.
+  const aboutScams = !otpDelivery && (!!about || talksAboutScams(text));
+  const quotes = aboutScams ? quotedRanges(text) : [];
+  const counts = (sp: Span) => !aboutScams || quotes.some(([a, b]) => sp.start >= a && sp.end <= b);
 
   for (const rule of RULES) {
     if (rule.kind === "credentials" && otpDelivery) continue;
-    const spans = collect(text, rule.patterns);
+    const spans = collect(text, rule.patterns).filter(counts);
     if (spans.length) flags.push({ kind: rule.kind, title: rule.title, detail: rule.detail, spans, weight: rule.weight });
   }
 
@@ -45,18 +70,20 @@ export function analyze({ text, qr, seen }: AnalyzeInput): Analysis {
   }
 
   // A message that names an organisation but links somewhere else is impersonation.
-  const entity = claimed(text) ?? links.find((l) => l.verdict === "lookalike")?.entity;
+  const judged = aboutScams ? quotes.map(([a, b]) => text.slice(a, b)).join("\n") : text;
+  const entity = claimed(judged) ?? links.find((l) => l.verdict === "lookalike")?.entity;
   const badLink = links.find((l) => l.verdict === "lookalike" || l.verdict === "suspicious" || l.verdict === "shortener");
   const hasRisk = flags.some((f) => ["threat", "credentials", "payment", "reward"].includes(f.kind));
   if (entity && (badLink || (hasRisk && !links.some((l) => l.verdict === "official")))) {
-    const m = text.match(entity.mentions);
+    const at = aboutScams ? quotes[0]?.[0] ?? 0 : 0;
+    const m = text.slice(at).match(entity.mentions);
     flags.push({
       kind: "impersonation",
       title: `Pretending to be ${entity.name}`,
       detail: badLink
         ? `It says it’s from ${entity.name}, but the link goes to ${badLink.domain}, which isn’t theirs.`
         : `It uses ${entity.name}’s name to make the request look official.`,
-      spans: m?.index != null ? [{ start: m.index, end: m.index + m[0].length, text: m[0] }] : [],
+      spans: m?.index != null ? [{ start: at + m.index, end: at + m.index + m[0].length, text: m[0] }] : [],
       weight: 20,
     });
   }
@@ -102,7 +129,7 @@ export function analyze({ text, qr, seen }: AnalyzeInput): Analysis {
       ? linkNote ? `No warning signs · ${linkNote}` : "No warning signs found"
       : [`${signs} warning sign${signs === 1 ? "" : "s"}`, linkNote].filter(Boolean).join(" · ");
 
-  return { score, level, headline, summary, flags, links, claimedEntity: entity, steps: steps(level, flags, links, entity), upi, seen };
+  return { score, level, headline, summary, flags, links, claimedEntity: entity, steps: steps(level, flags, links, entity), upi, seen, aboutScams: aboutScams || undefined };
 }
 
 function shortName(e: Entity) {

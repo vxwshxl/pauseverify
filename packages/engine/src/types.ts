@@ -86,6 +86,11 @@ export interface Analysis {
   upi?: UpiPayment;
   /** What the vision model saw in a screenshot, in one plain sentence. */
   seen?: string;
+  /**
+   * The text talks *about* scams (advice, news, a bank's safety page). Only messages it quotes are
+   * judged, and the extension underlines them without raising an alert.
+   */
+  aboutScams?: boolean;
 }
 
 /** English, Hindi and every Northeast language Bhashini serves (checked 2026-11-14). */

@@ -63,24 +63,31 @@ export async function translate(texts: string[], from: Lang, to: Lang): Promise<
   if (from === to) return texts;
   const out: (string | undefined)[] = texts.map((t) => cache.get(`${from}>${to}:${t}`));
   const missing = texts.map((t, i) => ({ t, i })).filter(({ i }) => out[i] === undefined && texts[i]!.trim());
-  for (let i = 0; i < missing.length; i += 25) {
-    const batch = missing.slice(i, i + 25);
-    const data = await call(
-      {
-        pipelineTasks: [{ taskType: "translation", config: { language: { sourceLanguage: from, targetLanguage: to }, serviceId: serviceFor(from, to) } }],
-        inputData: { input: batch.map(({ t }) => ({ source: from === "en" ? translatable(t) : t })) },
-      },
-      20_000,
-    );
-    const got = data.pipelineResponse?.[0]?.output ?? [];
-    batch.forEach(({ t, i: idx }, j) => {
-      const raw = got[j]?.target?.trim() || t;
+  const batches: (typeof missing)[] = [];
+  for (let i = 0; i < missing.length; i += 25) batches.push(missing.slice(i, i + 25));
+  // Batches run in parallel so a long sheet fits in one function call. A batch that fails (an idle
+  // model that never woke) leaves its strings in English *uncached*, so the next request retries
+  // them — caching the fallback once kept a language stuck in English until a redeploy.
+  const settled = await Promise.allSettled(batches.map((batch) => call(
+    {
+      pipelineTasks: [{ taskType: "translation", config: { language: { sourceLanguage: from, targetLanguage: to }, serviceId: serviceFor(from, to) } }],
+      inputData: { input: batch.map(({ t }) => ({ source: from === "en" ? translatable(t) : t })) },
+    },
+    20_000,
+  )));
+  let failed = 0;
+  settled.forEach((res, b) => {
+    const got = res.status === "fulfilled" ? res.value.pipelineResponse?.[0]?.output ?? [] : [];
+    batches[b]!.forEach(({ t, i: idx }, j) => {
+      const raw = got[j]?.target?.trim();
+      if (!raw) { failed++; return; }
       const target = to === "mni" ? fixMeitei(raw) : raw;
       out[idx] = target;
       if (cache.size >= CACHE_MAX) cache.delete(cache.keys().next().value!);
       cache.set(`${from}>${to}:${t}`, target);
     });
-  }
+  });
+  if (failed && failed === missing.length) throw new Error("Translation is unavailable right now");
   return out.map((t, i) => t ?? texts[i]!);
 }
 

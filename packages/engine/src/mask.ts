@@ -8,5 +8,5 @@ export function mask(text: string): string {
     .replace(/[\w.+-]+@[\w-]+\.[\w.]+/g, "[email]")
     .replace(/(?:\+?91[\s-]?)?(?<![\d])[6-9]\d{4}[\s-]?\d{5}(?![\d])/g, "[phone number]")
     .replace(/(?<![\d₹])\d(?:[\s-]?\d){8,18}(?![\d])/g, "[number]")
-    .replace(/(?<!(?:₹|rs\.?|inr)\s?)(?<![\d,.])\b\d{4,8}\b(?![\d,.])/gi, "[code]");
+    .replace(/(?<!(?:₹|rs\.?|inr)\s?)(?<!\d[,.]?)\b\d{4,8}\b(?![\d]|[,.]\d)/gi, "[code]");
 }

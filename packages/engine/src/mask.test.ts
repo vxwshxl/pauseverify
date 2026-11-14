@@ -10,3 +10,9 @@ test("masks secrets but keeps amounts", () => {
   assert.ok(m.includes("₹5,000") && m.includes("Rs.2000"));
   assert.ok(m.includes("[email]"));
 });
+
+test("a code followed by punctuation is still masked, amounts are not", () => {
+  const m = mask("I shared my OTP 482913, what now? Code 7731. Paid ₹12,500.50 and 3,000 rupees.");
+  assert.ok(!m.includes("482913") && !m.includes("7731"), m);
+  assert.ok(m.includes("₹12,500.50") && m.includes("3,000"), m);
+});
