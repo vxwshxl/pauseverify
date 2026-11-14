@@ -34,6 +34,8 @@ export interface IslandProps {
   onLangChange?: (lang: Lang) => void;
   /** The person asked for this check, so show the result even when it's safe. */
   alwaysAlert?: boolean;
+  /** Where the island sits. "right" keeps it in the bottom-right corner, out of the way. */
+  position?: "center" | "right";
 }
 
 // Native names. Seven Northeast languages, all served by Bhashini.
@@ -58,7 +60,7 @@ const FLAG_ICON: Record<Flag["kind"], typeof Clock> = {
 };
 
 const SPRING = { type: "spring", stiffness: 420, damping: 38, mass: 0.9 } as const;
-const RADIUS: Record<IslandMode, number> = { idle: 30, scanning: 30, alert: 24, sheet: 28 };
+const RADIUS: Record<IslandMode, number> = { idle: 28, scanning: 28, alert: 24, sheet: 28 };
 
 // Interface strings, translated with everything else when another language is picked.
 const UI = [
@@ -113,6 +115,9 @@ export function Island(props: IslandProps) {
   const [mode, setMode] = useState<IslandMode>(initialMode ?? "idle");
   const [lang, setLangState] = useState<Lang>(props.lang ?? "en");
   const lastAnalysis = useRef<Analysis | null>(null);
+  const shell = useRef<HTMLDivElement>(null);
+  // Idle, the island is a small circle; hovering (or tapping) peeks the full pill.
+  const [peek, setPeek] = useState(false);
   const strings = useMemo(() => collect(analysis), [analysis]);
   const { t, loading } = useTranslations(lang, strings, translate);
 
@@ -139,37 +144,64 @@ export function Island(props: IslandProps) {
     return () => window.removeEventListener("keydown", onKey, true);
   }, [mode, analysis]);
 
+  // Clicking anywhere outside shrinks it back to the circle; the coloured dot keeps the result.
+  useEffect(() => {
+    if (inline || (mode !== "alert" && mode !== "sheet")) return;
+    const onDown = (e: PointerEvent) => {
+      if (shell.current && e.composedPath().includes(shell.current)) return;
+      props.stopSpeaking?.();
+      setPeek(false);
+      setMode("idle");
+    };
+    document.addEventListener("pointerdown", onDown, true);
+    return () => document.removeEventListener("pointerdown", onDown, true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- stopSpeaking is a stable service
+  }, [mode, inline]);
+
   const close = () => {
     props.stopSpeaking?.();
+    setPeek(false);
     setMode("idle");
     onDismiss?.();
   };
+  const compact = (mode === "idle" && !peek) || mode === "scanning";
+  const viewKey = mode === "idle" ? (peek ? "idle-pill" : "idle-dot") : mode;
 
   return (
     <TCtx.Provider value={{ t, lang, loading }}>
       <MotionConfig reducedMotion="user">
         <div className="pv-root" lang={lang}>
-          <div className="pv-dock" data-inline={inline ? "true" : "false"}>
+          <div className="pv-dock" data-inline={inline ? "true" : "false"} data-pos={props.position ?? "center"}>
             <motion.div
+              ref={shell}
               layout
               initial={false}
               transition={SPRING}
               className="pv-shell"
               data-mode={mode}
-              style={{ borderRadius: RADIUS[mode] }}
+              data-compact={compact}
+              style={{ borderRadius: compact ? 28 : RADIUS[mode] }}
+              onMouseEnter={() => mode === "idle" && setPeek(true)}
+              onMouseLeave={() => setPeek(false)}
               role={mode === "sheet" ? "dialog" : "region"}
               aria-label="Pause & Verify"
               aria-live="polite"
             >
               <AnimatePresence mode="popLayout" initial={false}>
                 <motion.div
-                  key={mode}
+                  key={viewKey}
                   initial={{ opacity: 0, scale: 0.98 }}
                   animate={{ opacity: 1, scale: 1, transition: { duration: 0.18, delay: 0.06 } }}
                   exit={{ opacity: 0, scale: 0.98, transition: { duration: 0.1 } }}
                 >
-                  {mode === "scanning" && <Scanning />}
-                  {mode === "idle" && <Pill analysis={analysis} context={context} onLook={onLook} onOpen={() => analysis && setMode("sheet")} />}
+                  {mode === "scanning" && <Dot scanning />}
+                  {mode === "idle" && !peek && (
+                    <Dot
+                      level={analysis?.level}
+                      onClick={() => (analysis ? setMode(analysis.level === "safe" ? "sheet" : "alert") : setPeek(true))}
+                    />
+                  )}
+                  {mode === "idle" && peek && <Pill analysis={analysis} context={context} onLook={onLook} onOpen={() => analysis && setMode("sheet")} />}
                   {mode === "alert" && analysis && <Alert analysis={analysis} onWhy={() => setMode("sheet")} onClose={close} onLook={onLook} />}
                   {mode === "sheet" && analysis && (
                     <Sheet
@@ -189,6 +221,17 @@ export function Island(props: IslandProps) {
         </div>
       </MotionConfig>
     </TCtx.Provider>
+  );
+}
+
+/** The resting island: a small circle with the mark, and a coloured dot once something was checked. */
+function Dot({ level, scanning, onClick }: { level?: Analysis["level"]; scanning?: boolean; onClick?: () => void }) {
+  return (
+    <button type="button" className="pv-dotbtn" onClick={onClick} disabled={scanning}
+      aria-label={scanning ? "Checking" : level ? `Pause & Verify: ${level === "high" ? "high risk found" : level === "caution" ? "be careful" : "looks safe"}. Open` : "Pause & Verify"}>
+      {scanning ? <span className="pv-spinner" aria-hidden /> : <Mark />}
+      {level && !scanning && <span className="pv-badge" data-level={level} data-pulse={level === "high"} aria-hidden />}
+    </button>
   );
 }
 
@@ -222,15 +265,6 @@ function Pill({ analysis, context, onLook, onOpen }: { analysis: Analysis | null
   );
 }
 
-function Scanning() {
-  const { t } = useT();
-  return (
-    <div className="pv-scan">
-      <span className="pv-spinner" aria-hidden />
-      {t("Checking…")}
-    </div>
-  );
-}
 
 function LevelIcon({ level }: { level: Analysis["level"] }) {
   return level === "high" ? <ShieldAlert /> : level === "caution" ? <TriangleAlert /> : <ShieldCheck />;

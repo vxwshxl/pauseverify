@@ -680,3 +680,37 @@
 }
 .pv-tip svg { width: 16px; height: 16px; flex: none; color: var(--pv-high); }
 .pv-mono { font-family: var(--pv-mono); font-weight: 600; word-break: break-all; }
+
+/* ── Resting state: a small circle (dynamic-island style) ─────────────── */
+.pv-dock[data-pos="right"] {
+  justify-content: flex-end;
+  padding: 0 20px;
+}
+@media (max-width: 560px) {
+  .pv-dock[data-pos="right"] { justify-content: center; padding: 0 12px; }
+}
+.pv-dotbtn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+}
+.pv-dotbtn .pv-mark { width: 40px; height: 40px; border-radius: 999px; }
+.pv-dotbtn .pv-mark i { height: 13px; }
+.pv-dotbtn .pv-spinner { width: 24px; height: 24px; }
+.pv-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 13px;
+  height: 13px;
+  border-radius: 999px;
+  border: 2.5px solid var(--pv-bg);
+  background: var(--pv-safe);
+}
+.pv-badge[data-level="caution"] { background: var(--pv-caution-dot); }
+.pv-badge[data-level="high"] { background: var(--pv-high); }
+.pv-badge[data-pulse="true"] { animation: pv-pulse 1.6s var(--pv-ease) infinite; }
+@media (prefers-reduced-motion: reduce) { .pv-badge[data-pulse="true"] { animation: none; } }

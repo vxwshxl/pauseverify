@@ -148,7 +148,7 @@ export function Inbox() {
         </section>
       </div>
 
-      <Island {...ai} analysis={analysis} scanning={scanning} context={open ? "this message" : "this inbox"} onLook={() => setLooking(true)} />
+      <Island {...ai} position="right" analysis={analysis} scanning={scanning} context={open ? "this message" : "this inbox"} onLook={() => setLooking(true)} />
       {looking && <LookOverlay onSelect={onLook} onCancel={() => setLooking(false)} />}
     </div>
   );

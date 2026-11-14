@@ -126,7 +126,7 @@ export function Checker() {
           </section>
         )}
       </div>
-      <Island {...ai} alwaysAlert analysis={checked?.analysis ?? null} scanning={scanning} context="what you paste" />
+      <Island {...ai} position="right" alwaysAlert analysis={checked?.analysis ?? null} scanning={scanning} context="what you paste" />
     </div>
   );
 }

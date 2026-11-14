@@ -185,6 +185,7 @@ export function App({ host }: { host: HTMLElement }) {
           scanning={scanning}
           alwaysAlert={asked}
           context="this page"
+          position="right"
           onLook={() => setLooking(true)}
           onDismiss={() => { if (messageText) dismissed.current.add(messageText); }}
           lang={settings.lang}
@@ -212,7 +213,7 @@ function LinkPauseCard({ pause, onBack, onOpen }: { pause: LinkPause; onBack: ()
   const { report, mismatch } = pause;
   return (
     <div className="pv-root">
-      <div className="pv-dock">
+      <div className="pv-dock" data-pos="right">
         <div className="pv-shell" style={{ borderRadius: 24 }} role="alertdialog" aria-label="Pause & Verify stopped this link">
           <div className="pv-alert">
             <div className="pv-alert-head">
