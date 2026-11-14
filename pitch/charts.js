@@ -55,7 +55,7 @@ async function cash(file, w, h, base, down, o) {
   const N = base.length;
   const X = (m) => L + ((W - L - R) * m) / (N - 1);
   const Y = (v) => T + ((Hh - T - B) * (vmax - v)) / (vmax - vmin);
-  let s = `<rect x="${X(0)}" y="${Y(-raise)}" width="${X(N - 1) - X(0)}" height="${Y(vmin) - Y(-raise)}" fill="#FBEDEE"/>`;
+  let s = raise ? `<rect x="${X(0)}" y="${Y(-raise)}" width="${X(N - 1) - X(0)}" height="${Y(vmin) - Y(-raise)}" fill="#FBEDEE"/>` : "";
   for (let v = vmin; v <= vmax; v += step) {
     s += `<line x1="${X(0)}" y1="${Y(v)}" x2="${X(N - 1)}" y2="${Y(v)}" stroke="#${v === 0 ? C.axis : C.grid}" stroke-width="${pt(v === 0 ? 1 : 0.75)}"/>`;
     s += text(X(0) - pt(6), Y(v), v, { size: 10.5, color: C.muted, anchor: "end", base: "central" });

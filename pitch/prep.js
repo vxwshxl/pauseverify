@@ -16,11 +16,11 @@ async function bg(file, base, glow, op, dots) {
 }
 
 async function mark(file, s = 600) {
-  const bw = s * 0.1, bh = s * 0.38, gap = s * 0.085, cx = s / 2, top = (s - bh) / 2;
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}">
-    <rect width="${s}" height="${s}" rx="${s * 0.28}" fill="#E8505B"/>
-    <rect x="${cx - gap / 2 - bw}" y="${top}" width="${bw}" height="${bh}" rx="${bw / 2}" fill="#fff"/>
-    <rect x="${cx + gap / 2}" y="${top}" width="${bw}" height="${bh}" rx="${bw / 2}" fill="#fff"/></svg>`;
+  // Pause stick + play triangle: the |▶ mark (same geometry as packages/island/src/mark.ts).
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}" viewBox="0 0 48 48">
+    <rect width="48" height="48" rx="14" fill="#E8505B"/>
+    <g fill="#fff" transform="translate(0.8 0)"><rect x="10.4" y="13" width="5.2" height="22" rx="2.6"/>
+    <path d="M19 20.5 V27.5 Q19 35 25.30 30.93 L29.70 28.07 Q36 24 29.70 19.93 L25.30 17.07 Q19 13 19 20.5 Z"/></g></svg>`;
   await sharp(Buffer.from(svg)).png().toFile(file);
 }
 

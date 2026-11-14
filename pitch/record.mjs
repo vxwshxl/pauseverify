@@ -44,20 +44,43 @@ async function launch(record) {
   return ctx;
 }
 
-const LANG_CHIPS = ["অসমীয়া", "बड़ो", "ꯃꯤꯇꯩꯂꯣꯟ", "Khasi", "Mizo", "नेपाली", "বাংলা", "हिन्दी"];
+
+const LANGS = ["অসমীয়া", "बड़ो", "ꯃꯤꯇꯩꯂꯣꯟ", "Khasi", "Mizo", "नेपाली", "বাংলা", "हिन्दी"];
+const KOTAK = "https://www.kotak.bank.in/en/safe-banking/safe-banking-articles/the-electricity-sms-fraud.html";
 
 // ── Warm-up: fill the server's translation cache so language switches are instant on camera.
 {
   const ctx = await launch(false);
   const p = await ctx.newPage();
+  const wait = async () => { await sleep(300); for (let i = 0; i < 120 && (await p.locator(".pv-sheet-scroll[data-loading=true]").count()); i++) await sleep(250); };
   await p.goto(SITE + "/demo");
-  await p.locator("ul[aria-label=Messages] button", { hasText: "VM-SBIBNK" }).click();
-  await sleep(1300);
-  await p.locator(".pv-btn", { hasText: "Show me why" }).click();
-  for (const l of LANG_CHIPS) {
-    await p.locator(".pv-langs button", { hasText: l }).click();
-    for (let i = 0; i < 80 && (await p.locator(".pv-sheet-scroll[data-loading=true]").count()); i++) await sleep(250);
+  for (const who of ["VM-SBIBNK", "Refund Desk"]) {
+    await p.locator("ul[aria-label=Messages] button", { hasText: who }).click();
+    await sleep(1300);
+    await p.locator(".pv-btn", { hasText: "Show me why" }).click();
+    for (const l of [...LANGS, "English"]) {
+      await p.locator(".pv-lang-btn").click();
+      await p.locator(".pv-lang-menu [role=option]", { hasText: l }).first().click();
+      await wait();
+      for (const t of [1, 2]) { await p.locator(".pv-tabs [role=tab]").nth(t).click(); await wait(); }
+      await p.locator(".pv-tabs [role=tab]").nth(0).click();
+    }
+    await p.locator(".pv-sheet [aria-label=Close]").click();
+    await sleep(500);
   }
+  await p.goto(KOTAK, { waitUntil: "domcontentloaded" });
+  await sleep(4000);
+  const sh = (s) => p.locator(`pause-verify ${s}`);
+  if (await sh(".pv-btn").filter({ hasText: "Show me why" }).count()) {
+    await sh(".pv-btn").filter({ hasText: "Show me why" }).click();
+    for (const l of ["অসমীয়া", "English"]) {
+      await sh(".pv-lang-btn").click();
+      await sh("[role=option]").filter({ hasText: l }).first().click();
+      await sleep(300); for (let i = 0; i < 120 && (await sh(".pv-sheet-scroll[data-loading=true]").count()); i++) await sleep(250);
+      for (const t of [1, 2]) { await sh(".pv-tabs [role=tab]").nth(t).click(); await sleep(1500); }
+      await sh(".pv-tabs [role=tab]").nth(0).click();
+    }
+  } else console.log("warm-up: no alert on Kotak page");
   await ctx.close();
   console.log("warm-up done");
 }
@@ -65,6 +88,9 @@ const LANG_CHIPS = ["অসমীয়া", "बड़ो", "ꯃꯤꯇꯩꯂꯣ
 // Playwright's video recorder captures blank frames with extensions in headless mode, so we
 // stream Chrome's own screencast frames (with timestamps) and stitch them with ffmpeg.
 const ctx = await launch(true);
+// Last real-site clip: a national news site reporting the same power-cut scam.
+const LAST = { url: "https://www.oneindia.com/chennai/chennai-did-you-receive-your-electricity-power-will-be-disconnected-tonight-message-its-scam-3987943.html",
+  cap: "A national news site reporting the same power-cut scam — caught again" };
 const p = await ctx.newPage();
 fs.rmSync(VID + "/frames", { recursive: true, force: true });
 fs.mkdirSync(VID + "/frames", { recursive: true });
@@ -99,56 +125,95 @@ async function drag(box, pad = 14) {
   await p.mouse.up();
 }
 
+
+const settle = async (scope = "") => { await sleep(300); for (let i = 0; i < 120 && (await p.locator(`${scope} .pv-sheet-scroll[data-loading=true]`).count()); i++) await sleep(200); };
+const sheetScroll = (scope, dy) => p.locator(`${scope} .pv-sheet-scroll`).evaluate((el, dy) => el.scrollBy({ top: dy, behavior: "smooth" }), dy).catch(() => {});
+async function pickLang(scope, name, hold = 1600) {
+  await click(p.locator(`${scope} .pv-lang-btn`), 700);
+  await click(p.locator(`${scope} [role=option]`).filter({ hasText: name }), 200);
+  await settle(scope);
+  await sleep(hold);
+}
+const tab = (scope, i) => click(p.locator(`${scope} .pv-tabs [role=tab]`).nth(i), 900);
+
 // 0 · Intro card
 await p.goto(TEST + "/card.html");
-await sleep(4200);
+await sleep(4500);
 
 // 1 · Website
 await p.goto(SITE + "/", { waitUntil: "networkidle" });
-await cap("1", "The website: what Pause & Verify does, in one line");
-await sleep(3500);
+await cap("1", "The website — and the new mark: pause, then play  |▶");
+await sleep(4000);
 await scroll(900, 8);
 await cap("1", "Seven Northeast languages — including low-resource Bodo, Khasi and Mizo");
 await p.getByRole("heading", { name: "Speaks the Northeast" }).scrollIntoViewIfNeeded();
 await scroll(-120, 2);
-await sleep(4200);
+await sleep(4000);
 
-// 2 · Demo inbox: the problem statement's own example
+// 2 · Demo inbox: the island's states
 await p.goto(SITE + "/demo", { waitUntil: "networkidle" });
-await cap("2", "Live demo inbox — open the bank message from the problem statement");
-await sleep(1500);
-await click(p.locator("ul[aria-label=Messages] button", { hasText: "VM-SBIBNK" }), 1600);
-await cap("2", "Warning signs are underlined in the message, and the island stops you");
-await sleep(3800);
-await click(p.locator(".pv-btn", { hasText: "Show me why" }), 900);
-await cap("2", "Why it’s a scam, in plain words — and the fake link it uses");
+await cap("2", "Live demo inbox. Nothing risky open → the island is a tiny circle, bottom-right");
+await sleep(3200);
+await click(p.locator("ul[aria-label=Messages] button", { hasText: "AD-SBIOTP" }), 1200);
+await cap("2", "A real OTP message: green dot, nothing to interrupt you");
 await sleep(2200);
-for (let i = 0; i < 4; i++) { await p.locator(".pv-sheet-scroll").evaluate((el) => el.scrollBy({ top: 230, behavior: "smooth" })); await sleep(1300); }
-await cap("2", "Safe next steps: the official app, the real .bank.in address, and 1930");
+await glide(p.locator(".pv-shell"), { steps: 20 });
+await cap("2", "Hover the circle to peek at the full island");
 await sleep(2600);
-await p.locator(".pv-sheet-scroll").evaluate((el) => el.scrollTo({ top: 0, behavior: "smooth" }));
+await p.mouse.move(700, 500, { steps: 14 });
 await sleep(800);
-await cap("2", "The same explanation in every Northeast language (Bhashini)");
-for (const l of LANG_CHIPS) {
-  await click(p.locator(".pv-langs button", { hasText: l }), 200);
-  await settleTranslation();
-  await sleep(1500);
-}
-await click(p.locator(".pv-langs button", { hasText: "English" }), 600);
-await cap("2", "Ask what to do — one tap, or type in your own words");
-await p.locator(".pv-sheet-scroll").evaluate((el) => el.scrollTo({ top: el.scrollHeight, behavior: "smooth" }));
-await sleep(1200);
-await click(p.locator(".pv-suggest button", { hasText: "I shared my OTP" }), 2200);
-await p.locator(".pv-sheet-scroll").evaluate((el) => el.scrollTo({ top: el.scrollHeight, behavior: "smooth" }));
+
+await cap("2", "Now the bank-KYC scam from the problem statement");
+await click(p.locator("ul[aria-label=Messages] button", { hasText: "VM-SBIBNK" }), 1600);
+await cap("2", "Warning signs are underlined in place — and the island stops you");
+await sleep(4200);
+await cap("2", "Click anywhere else: it shrinks, but the warning stays as a pill — like a dynamic island");
+await p.mouse.move(820, 150, { steps: 16 }); await p.mouse.down(); await p.mouse.up();
+await sleep(4200);
+await cap("2", "Tap the pill to bring the warning back");
+await click(p.locator(".pv-wpill"), 1800);
+
+await click(p.locator(".pv-btn", { hasText: "Show me why" }), 900);
+await cap("2", "The verdict at a glance: risk level, headline, and a 0–100 score");
 await sleep(3500);
-await click(p.locator(".pv-sheet [aria-label=Close]"), 600);
+await cap("2", "Why — every warning sign, with the exact words it found");
+await sleep(1500);
+const rows = p.locator(".pv-flag-row");
+for (let i = 1; i < Math.min(4, await rows.count()); i++) { await click(rows.nth(i), 300); await sheetScroll("", 130); await sleep(1500); }
+await sheetScroll("", 600);
+await cap("2", "…and the fake link: it says SBI, but it isn’t SBI’s website");
+await sleep(3500);
+await tab("", 1);
+await cap("2", "What to do — safe next steps: the official app, the real .bank.in address, 1930");
+await sleep(3000);
+await sheetScroll("", 400);
+await sleep(2800);
+
+await tab("", 0);
+await cap("2", "Language dropdown — native script, English name, keyboard friendly");
+await click(p.locator(".pv-lang-btn"), 2600);
+await click(p.locator(".pv-lang-btn"), 500);
+await cap("2", "The same explanation in every Northeast language (Bhashini)");
+for (const l of LANGS) await pickLang("", l, 1700);
+await tab("", 1);
+await sleep(2200);
+await pickLang("", "English", 600);
+
+await tab("", 2);
+await cap("2", "Ask — one tap, or type in your own words. The AI only explains; the engine decides");
+await sleep(1500);
+await click(p.locator(".pv-suggest button", { hasText: "I shared my OTP" }), 800);
+for (let i = 0; i < 120 && (await p.locator(".pv-typing").count()); i++) await sleep(250);
+await sheetScroll("", 2000);
+await sleep(5000);
+await click(p.locator(".pv-sheet [aria-label=Close]"), 700);
 
 // 3 · QR "refund"
 await cap("3", "A cashback QR — tap the scan button and drag over the QR");
 await click(p.locator("ul[aria-label=Messages] button", { hasText: "Refund Desk" }), 1600);
 await click(p.locator('.pv-alert [aria-label="Look at part of the screen"]'), 500);
 await drag(await p.locator("figure img").boundingBox());
-await sleep(1800);
+await sleep(2000);
 await cap("3", "Decoded on the device: this QR SENDS ₹5,000 — you never scan to receive");
 await click(p.locator(".pv-btn", { hasText: "Show me why" }), 900);
 await sleep(4200);
@@ -162,7 +227,7 @@ await glide(p.locator("button", { hasText: "Screenshot" }));
 await p.locator("input[type=file]").setInputFiles(SHOT);
 await cap("4", "Gemma vision reads the screenshot; our engine makes the decision");
 for (let i = 0; i < 120 && !(await p.locator(".pv-alert").count()); i++) await sleep(250);
-await sleep(2200);
+await sleep(2400);
 await click(p.locator(".pv-btn", { hasText: "Show me why" }), 900);
 await sleep(4000);
 await click(p.locator(".pv-sheet [aria-label=Close]"), 500);
@@ -173,21 +238,30 @@ await sleep(1500);
 await cap("5", "Chrome extension on a real website — an ordinary page stays quiet");
 await sleep(2500);
 await scroll(1400, 8);
-await sleep(2500);
+await sleep(1200);
+await glide(shadow(".pv-shell"), { steps: 20 });
+await sleep(2200);
+await p.mouse.move(600, 400, { steps: 12 });
+await sleep(800);
 
-await p.goto("https://www.kotak.bank.in/en/safe-banking/safe-banking-articles/the-electricity-sms-fraud.html", { waitUntil: "domcontentloaded" });
+await p.goto(KOTAK, { waitUntil: "domcontentloaded" });
 await sleep(2500);
 await cap("5", "A real bank page quoting a power-cut fraud SMS — caught and underlined");
 const quote = p.getByText(/disconnected/i).first();
 await quote.scrollIntoViewIfNeeded().catch(() => {});
 await scroll(-160, 2);
 await sleep(4500);
-await click(shadow(".pv-btn").filter({ hasText: "Show me why" }), 900);
-await click(shadow(".pv-langs button").filter({ hasText: "অসমীয়া" }), 300);
-await settleTranslation();
+await cap("5", "Keep reading — the warning waits as a small pill");
+await p.mouse.move(400, 300, { steps: 14 }); await p.mouse.down(); await p.mouse.up();
+await sleep(3500);
+await click(shadow(".pv-wpill"), 1200);
+await click(shadow(".pv-btn").filter({ hasText: "Show me why" }), 1200);
+await pickLang("pause-verify", "অসমীয়া", 300);
 await cap("5", "Explained in Assamese, right on the bank’s own page");
-await sleep(4000);
-await click(shadow(".pv-langs button").filter({ hasText: "English" }), 400);
+await sleep(3500);
+await tab("pause-verify", 1);
+await sleep(3000);
+await pickLang("pause-verify", "English", 400);
 await click(shadow(".pv-sheet [aria-label=Close]"), 600);
 
 await cap("5", "Look on any site: drag over the message — the tab is screenshotted and read");
@@ -195,14 +269,17 @@ await click(shadow('[aria-label="Look at part of the screen"]').first(), 500);
 const qb = await quote.boundingBox();
 if (qb) await drag({ x: Math.max(20, qb.x - 30), y: qb.y - 60, width: Math.min(900, qb.width + 60), height: qb.height + 120 });
 for (let i = 0; i < 120 && (await shadow(".pv-scan").count()); i++) await sleep(250);
-await sleep(3500);
+await sleep(3800);
 
-await p.goto("https://mokokchungtimes.com/scam-alert-mokokchung-sdo-electrical-cautions-public/", { waitUntil: "domcontentloaded" });
-await sleep(2500);
-await cap("5", "A Nagaland news site — the same scam, caught again");
-await p.getByText(/disconnected/i).first().scrollIntoViewIfNeeded().catch(() => {});
-await scroll(-160, 2);
-await sleep(4500);
+await p.goto(LAST.url, { waitUntil: "domcontentloaded", timeout: 45000 }).catch(() => {});
+await sleep(3500);
+const hlTop = () => p.evaluate(() => { const h = CSS.highlights.get("pv-flag"); if (!h) return null; for (const r of h) return r.getBoundingClientRect().top + scrollY; return null; }).catch(() => null);
+let top = null;
+for (let i = 0; i < 30 && top == null; i++) { top = await hlTop(); if (top == null) await sleep(500); }
+if (top != null) await p.evaluate((y) => scrollTo({ top: Math.max(0, y - 320), behavior: "smooth" }), top);
+for (let i = 0; i < 30 && !(await shadow(".pv-alert").count()); i++) await sleep(500);
+await cap("5", LAST.cap);
+await sleep(5500);
 
 // 6 · Link that lies
 await p.goto(TEST + "/", { waitUntil: "domcontentloaded" });

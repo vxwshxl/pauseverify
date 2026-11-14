@@ -19,7 +19,8 @@ team's own estimates and are labelled as such on the slides.
 ## Demo video
 
 `node record.mjs <outdir>` drives the site and the extension (including real public sites: Wikipedia,
-Kotak Bank's "Electricity SMS Fraud" page, Mokokchung Times) with captions, then
+Kotak Bank's "Electricity SMS Fraud" page, a OneIndia news article). It walks the island's states — circle,
+hover peek, alert, warning pill, the tabbed sheet and the language dropdown with captions, then
 `ffmpeg -f concat -safe 0 -i <outdir>/frames.txt -vf "fps=30,format=yuv420p" -c:v libx264 demo.mp4`.
 It uses Chrome's CDP screencast because Playwright's video recorder captures blank frames when an
 extension is loaded headless. `node probe.mjs <urls…>` reports what the extension does on any page.

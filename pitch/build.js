@@ -103,7 +103,9 @@ function pchip(pts, n) {
     return s;
   };
   const src = (s, text, dark, y = 6.62) => T(s, text, { x: M, y, w: CW, h: 0.24, fontSize: 9, color: dark ? P.ltext2 : P.muted });
-  const MB = 2400 / 1539, SHEET = 1040 / 1524;
+  const MB = 2400 / 1539;
+  const ratio = async (f) => { const m = await require("sharp")(A(f)).metadata(); return m.width / m.height; };
+  const SHEET = await ratio("card-sheet-as.png"), SHEET_QR = await ratio("card-sheet-qr.png"), PAUSED = await ratio("card-paused.png");
 
   // ════ 1 · Cover ═══════════════════════════════════════════════════════
   pres.addSection({ title: "Opening" });
@@ -123,12 +125,12 @@ function pchip(pts, n) {
     pill(s, M + 4.95, 4.85, 2.25, 0.46, "SDG 16 · JUSTICE", P.amber, P.ink, 12);
     T(s, [
       { text: "Team Commit&Run", options: { fontSize: 20, bold: true, color: "FFFFFF", breakLine: true } },
-      { text: "Veeshal D Bodosa   ·   Mrinmoy Banikya", options: { fontSize: 15, color: P.ltext, breakLine: true } },
+      { text: "Veeshal D Bodosa   ·   Mrinmoy Banikya   ·   Deepjyoti Dey", options: { fontSize: 15, color: P.ltext, breakLine: true } },
       { text: "B.Tech CSE, 5th semester   ·   The Assam Royal Global University", options: { fontSize: 12, color: P.ltext2 } },
     ], { x: M, y: 5.62, w: 7.2, h: 1.25, paraSpaceAfter: 4 });
     s.addImage({ path: A("macbook-ext.png"), x: 7.75, y: 2.0, w: 5.2, h: 5.2 / MB, objectName: "Extension on a laptop", altText: "Pause & Verify catching a fake bank SMS on a web page" });
-    s.addImage({ path: A("card-paused.png"), x: 8.4, y: 5.25, w: 3.9, h: 3.9 / (1080 / 428), objectName: "Paused link card", altText: "Paused. This link isn't what it seems." });
-    s.addNotes("Open: Pause & Verify. A calm second opinion on suspicious messages, right where they appear. Introduce Veeshal and Mrinmoy, Team Commit&Run.");
+    s.addImage({ path: A("card-paused.png"), x: 8.4, y: 5.25, w: 3.9, h: 3.9 / PAUSED, objectName: "Paused link card", altText: "Paused. This link isn't what it seems." });
+    s.addNotes("Open: Pause & Verify. A calm second opinion on suspicious messages, right where they appear. Introduce Veeshal, Mrinmoy and Deepjyoti, Team Commit&Run.");
   }
 
   // ════ 2 · Problem & market ════════════════════════════════════════════
@@ -184,7 +186,7 @@ function pchip(pts, n) {
   // ════ 3 · Idea & solution ═════════════════════════════════════════════
   pres.addSection({ title: "Solution" });
   {
-    const s = slide("Light", "Solution", "IDEA & SOLUTION", "A small island at the bottom of the screen that stops you at the risky moment and explains why.");
+    const s = slide("Light", "Solution", "IDEA & SOLUTION", "A small island in the corner of the screen that stops you at the risky moment and explains why.");
     const flow = ["Message", "Checked", "Underlined", "Explained", "Safe check", "1930"];
     const LW = 8.35, fw = 1.22, gap = (LW - fw * 6) / 5;
     flow.forEach((t, i) => {
@@ -209,7 +211,7 @@ function pchip(pts, n) {
       await iconChip(s, x + 0.18, y + 0.2, 0.5, n, i === 0 ? P.coral : P.soft, i === 0 ? "FFFFFF" : P.coralInk);
       T(s, [{ text: h, options: { bold: true, fontSize: 14, color: P.ink, breakLine: true } }, { text: b, options: { fontSize: 11.5 } }], { x: x + 0.82, y: y + 0.14, w: gw - 0.98, h: 0.88, paraSpaceAfter: 3 });
     }
-    s.addImage({ path: A("card-sheet-qr.png"), x: 9.05, y: 2.15, w: 2.45, h: 2.45 / SHEET, objectName: "QR result sheet", altText: "Island sheet: This QR sends ₹5,000" });
+    s.addImage({ path: A("card-sheet-qr.png"), x: 9.05, y: 2.15, w: 2.45, h: 2.45 / SHEET_QR, objectName: "QR result sheet", altText: "Island sheet: This QR sends ₹5,000" });
     s.addImage({ path: A("card-sheet-as.png"), x: 10.45, y: 1.55, w: 2.45, h: 2.45 / SHEET, objectName: "Assamese sheet", altText: "Island sheet explaining a scam in Assamese" });
     src(s, "Sources: Pause & Verify prototype (engine tests: every scam sample high risk, genuine OTP and Amazon messages safe) · Bhashini (MeitY) · Sarvam AI · Gemma 3 (Google, open weights).", false, 6.62);
     s.addNotes("60 seconds. The island watches quietly. When a message rushes, scares or asks for an OTP, it underlines the exact words, explains them in plain language and shows a safe way to check. It catches fake links before they open, tells you what a QR really pays, reads screenshots, and speaks seven Northeast languages, including Bodo, Khasi and Mizo. The decision is made on the device; AI only reads and explains.");
@@ -267,7 +269,7 @@ function pchip(pts, n) {
 
   // ════ 5 · Implementation & financial plan ═════════════════════════════
   {
-    const s = slide("Light", "Business", "IMPLEMENTATION & FINANCIAL PLAN", "The prototype works today. ₹18 lakh, released at gates, takes it from Assam to India.");
+    const s = slide("Light", "Business", "IMPLEMENTATION & FINANCIAL PLAN", "The prototype works today. A gated rollout takes it from Assam to India, breaking even in month 14.");
     T(s, "How it reaches people", { x: M, y: 1.6, w: 4, h: 0.3, fontSize: 14, bold: true, color: P.ink });
     const steps = [["Install", "Chrome Web Store, or inside a bank’s app"], ["Watch", "quietly, on the device"], ["Alert", "explains, in their own language"], ["Learn", "anonymous scam trends for partners"]];
     steps.forEach(([h, b], i) => {
@@ -288,7 +290,7 @@ function pchip(pts, n) {
     const down = pchip([[0, 0], [6, -5], [12, -11], [18, -15.5], [21, -16.2], [24, -15], [30, -6], [33, 0], [35, 5]], N);
     T(s, "Cumulative operating cash, ₹ lakh", { x: 4.95, y: 1.6, w: 5, h: 0.3, fontSize: 14, bold: true, color: P.ink });
     await CH.cash(A("c-cash.png"), 5.3, 4.45, base, down, {
-      vmin: -20, vmax: 40, raise: 18, step: 10, gates: [[9, "Gate 2"], [18, "Gate 3"]], startYear: 2027, endLabel: "Dec 2029",
+      vmin: -20, vmax: 40, raise: 0, step: 10, gates: [[9, "Gate 2"], [18, "Gate 3"]], startYear: 2027, endLabel: "Dec 2029",
       endBase: "Base\n+₹36 L", endDown: "Downside\n+₹5 L",
       notes: [
         { m: 14, v: -11.2, t: "Base low −₹11.2 L\n(month 14)", at: [10.5, 6], lead: [11.8, 1.6] },
@@ -299,26 +301,29 @@ function pchip(pts, n) {
     });
     s.addImage({ path: A("c-cash.png"), x: 4.85, y: 1.95, w: 5.3, h: 4.45, objectName: "Cumulative cash chart", altText: "Cumulative operating cash, ₹ lakh, Jan 2027 to Dec 2029. Base: low −11.2 L in month 14, back to zero in month 24, +36 L by month 36. Downside: low −16.2 L in month 21, zero in month 33, +5 L." });
 
-    box(s, 10.35, 1.6, CW - 9.75, 2.15, P.ink, { name: "ask card" });
-    T(s, "THE ASK", { x: 10.55, y: 1.72, w: 2, h: 0.25, fontSize: 11, bold: true, color: P.coralLt, charSpacing: 1 });
-    T(s, "₹18 lakh", { x: 10.55, y: 1.98, w: 2.1, h: 0.5, fontSize: 28, bold: true, color: "FFFFFF", valign: "middle" });
-    T(s, [{ text: "₹8 L  ", options: { bold: true, color: "FFFFFF" } }, { text: "today: Android + launch", options: { breakLine: true } }, { text: "₹6 L  ", options: { bold: true, color: "FFFFFF" } }, { text: "after Gate 2: bank pilots", options: { breakLine: true } }, { text: "₹4 L  ", options: { bold: true, color: "FFFFFF" } }, { text: "reserve, bad case only" }],
-      { x: 10.55, y: 2.55, w: 2.15, h: 1.1, fontSize: 11, color: P.ltext, paraSpaceAfter: 3 });
+    box(s, 10.35, 1.6, CW - 9.75, 2.15, P.ink, { name: "built today card" });
+    T(s, "ALREADY BUILT", { x: 10.55, y: 1.72, w: 2, h: 0.25, fontSize: 11, bold: true, color: P.coralLt, charSpacing: 1 });
+    T(s, "Working today", { x: 10.55, y: 1.98, w: 2.1, h: 0.45, fontSize: 21, bold: true, color: "FFFFFF", valign: "middle" });
+    T(s, [["Engine  ", "on-device, 14 tests"], ["Extension  ", "on real websites"], ["Web  ", "demo + checker"], ["AI  ", "9 languages, Bhashini"]].flatMap(([h, t], i, a) => [
+      { text: "✓ " + h, options: { bold: true, color: "FFFFFF" } }, { text: t, options: i < a.length - 1 ? { breakLine: true } : {} }]),
+      { x: 10.55, y: 2.5, w: 2.2, h: 1.15, fontSize: 11, color: P.ltext, paraSpaceAfter: 3 });
     const ks = [["Month 14", "operating break-even", P.coral], ["−₹16 L", "worst cash, bad case", P.amberInk], ["₹2.4 cr", "ARR in 2029, 10 banks", P.coral]];
     ks.forEach(([b, c, col], i) => {
       const y = 3.95 + i * 0.82;
       T(s, b, { x: 10.35, y, w: 2.4, h: 0.45, fontSize: 24, bold: true, color: col });
       T(s, c, { x: 10.35, y: y + 0.45, w: 2.4, h: 0.24, fontSize: 11, color: P.text });
     });
-    src(s, "Our model: costs ₹0.9 L → ₹1.6 L a month; banks pay ₹2 per active user a month; ARR = 10 banks × 1 lakh users × ₹24. Bad case: half the bank users, six months later. Shaded band: below the ₹18 L raised.", false);
-    s.addNotes("60 seconds. People install it from the Chrome Web Store or get it inside their bank's app. We roll out with a gate at each step: colleges in Assam first, then bank pilots, then the Northeast. We're asking ₹18 lakh in three stages. The base case breaks even in month 14 and has all cash back by month 24; the bad case bottoms at minus ₹16 lakh, inside what we raise.");
+    src(s, "Our model: costs ₹0.9 L → ₹1.6 L a month; banks pay ₹2 per active user a month; ARR = 10 banks × 1 lakh users × ₹24. Bad case: half the bank users, six months later.", false);
+    s.addNotes("60 seconds. People install it from the Chrome Web Store or get it inside their bank's app. We roll out with a gate at each step: colleges in Assam first, then bank pilots, then the Northeast, and we only move on when the gate is met. Everything on the right is already built and working. The base case breaks even in month 14 and has all cash back by month 24; even the bad case bottoms at minus ₹16 lakh and recovers by month 33.");
   }
 
   // ════ 6 · Conclusion ══════════════════════════════════════════════════
   pres.addSection({ title: "Close" });
   {
     const s = slide("Ink", "Close", "CONCLUSION", "");
-    T(s, "Every Indian deserves a calm second opinion before they pay.", { x: M, y: 1.08, w: 7.9, h: 0.95, fontSize: 24, color: P.coralLt });
+    T(s, [{ text: "Scams win by rushing people.", options: { bold: true, color: "FFFFFF", breakLine: true } },
+      { text: "Pause & Verify gives every Indian a calm second opinion, in their own language, before they pay." }],
+      { x: M, y: 1.08, w: 7.9, h: 1.0, fontSize: 20, color: P.coralLt, paraSpaceAfter: 2 });
     const sdg = [["00689D", "SDG 16", "Peace & Justice", "Fewer frauds, faster reports to 1930"], ["DD1367", "SDG 10", "Reduced Inequalities", "7 Northeast languages, read aloud"], ["FD6925", "SDG 9", "Industry & Innovation", "Private AI that runs on the device"], ["A21942", "SDG 8", "Decent Work & Growth", "Safer digital payments for all"]];
     sdg.forEach(([c, n, h, b], i) => {
       const x = M + i * 2.02, w = 1.88;
@@ -333,21 +338,26 @@ function pchip(pts, n) {
       box(s, x, 4.08, w, 0.82, P.panel, { r: 0.08, name: d });
       T(s, [{ text: d, options: { bold: true, color: P.coralLt, fontSize: 14, breakLine: true } }, { text: t, options: { color: "FFFFFF", fontSize: 12 } }], { x: x + 0.16, y: 4.16, w: w - 0.25, h: 0.68, paraSpaceAfter: 3 });
     });
-    box(s, 8.95, 1.15, 3.78, 3.75, P.panel, { name: "ask card" });
-    T(s, "THE ASK", { x: 9.2, y: 1.35, w: 3, h: 0.3, fontSize: 14, bold: true, color: P.coralLt, charSpacing: 1 });
-    T(s, "₹18 lakh", { x: 9.2, y: 1.68, w: 3.4, h: 0.8, fontSize: 44, bold: true, color: "FFFFFF", valign: "middle" });
-    T(s, [
-      { text: "in three stages.", options: { breakLine: true } },
-      { text: "₹8 lakh today", options: { bold: true, color: "FFFFFF" } }, { text: " reaches 50,000 people in Assam.", options: { breakLine: true } },
-      { text: "Why us: ", options: { bold: true, color: "FFFFFF" } }, { text: "the engine, the extension and nine-language AI are built and working today." },
-    ], { x: 9.2, y: 2.58, w: 3.3, h: 2.15, fontSize: 12.5, color: P.ltext, paraSpaceAfter: 6 });
+    // Proof, not promises: what the prototype did on live public websites.
+    box(s, 8.95, 1.15, 3.78, 3.75, P.panel, { name: "proof card" });
+    T(s, "PROVEN ON REAL WEBSITES", { x: 9.2, y: 1.32, w: 3.4, h: 0.28, fontSize: 12, bold: true, color: P.coralLt, charSpacing: 1 });
+    T(s, [{ text: "Caught the scam", options: { bold: true, color: "FFFFFF", fontSize: 13, breakLine: true } },
+      { text: "Kotak Bank and RBL Bank fraud alerts, Mokokchung Times, OneIndia" }], { x: 9.2, y: 1.72, w: 3.35, h: 0.8, fontSize: 11.5, color: P.ltext, paraSpaceAfter: 2 });
+    T(s, [{ text: "Stayed quiet", options: { bold: true, color: "FFFFFF", fontSize: 13, breakLine: true } },
+      { text: "SBI, Flipkart, Wikipedia, NDTV: no false alarms" }], { x: 9.2, y: 2.58, w: 3.35, h: 0.62, fontSize: 11.5, color: P.ltext, paraSpaceAfter: 2 });
+    s.addShape(pres.shapes.LINE, { x: 9.2, y: 3.35, w: 3.3, h: 0, line: { color: "3A3633", width: 0.75 }, objectName: "proof divider" });
+    [["14/14", "engine tests"], ["9", "languages"], ["0", "messages stored"]].forEach(([b, c], i) => {
+      const x = 9.2 + i * 1.12;
+      T(s, b, { x, y: 3.5, w: 1.1, h: 0.5, fontSize: 24, bold: true, color: "FFFFFF", valign: "middle" });
+      T(s, c, { x, y: 4.0, w: 1.1, h: 0.5, fontSize: 10.5, color: P.ltext });
+    });
     box(s, M, 5.08, CW, 0.62, P.panel, { name: "vision strip" });
     T(s, [{ text: "By 2029   ", options: { bold: true, color: P.coralLt } }, { text: "1 crore users   ·   10 Indian languages   ·   10 partner banks   ·   one tap from the truth before every payment" }], { x: M + 0.3, y: 5.08, w: CW - 0.5, h: 0.62, fontSize: 15, color: "FFFFFF", valign: "middle" });
     T(s, "Thank you", { x: M, y: 5.92, w: 3, h: 0.5, fontSize: 26, bold: true, color: "FFFFFF", valign: "middle" });
-    T(s, "Team Commit&Run   ·   Veeshal D Bodosa   ·   Mrinmoy Banikya", { x: M + 2.45, y: 5.92, w: 6, h: 0.5, fontSize: 12.5, color: P.ltext, valign: "middle" });
-    T(s, [{ text: "Try it", options: { bold: true, color: P.coralLt, fontSize: 12, breakLine: true } }, { text: LIVE, options: { bold: true, color: "FFFFFF", fontSize: 14 } }], { x: 7.6, y: 5.88, w: 3.95, h: 0.6, align: "right" });
+    T(s, [{ text: "Team Commit&Run", options: { bold: true, color: "FFFFFF", breakLine: true } }, { text: "Veeshal D Bodosa  ·  Mrinmoy Banikya  ·  Deepjyoti Dey" }], { x: M + 2.35, y: 5.86, w: 4.9, h: 0.62, fontSize: 12, color: P.ltext, valign: "middle", paraSpaceAfter: 2 });
+    T(s, [{ text: "Try it", options: { bold: true, color: P.coralLt, fontSize: 12, breakLine: true } }, { text: LIVE, options: { bold: true, color: "FFFFFF", fontSize: 14 } }], { x: 7.4, y: 5.88, w: 4.15, h: 0.6, align: "right" });
     s.addImage({ data: qr, x: 11.78, y: 5.86, w: 0.95, h: 0.95, objectName: "QR code", altText: "QR code to " + LIVE });
-    s.addNotes("45 seconds. Every Indian deserves a calm second opinion before they pay. Fewer frauds, faster reporting, in the family's own language. Next 90 days: Chrome Web Store, colleges, Android, a first bank. Scan the code to try it. Thank you.");
+    s.addNotes("45 seconds. Scams win by rushing people; Pause & Verify gives them a pause, in their own language. This isn't a promise: on live websites it caught the fraud examples on Kotak's and RBL's pages and on Mokokchung Times, and stayed silent on SBI, Flipkart and Wikipedia. Next 90 days: Chrome Web Store, three colleges, Android, a first bank. Scan the code to try it. Thank you from Veeshal, Mrinmoy and Deepjyoti.");
   }
 
   // ════ 7 · Supporting: prototype showcase ══════════════════════════════
@@ -359,15 +369,15 @@ function pchip(pts, n) {
     T(s, "Extension on a real page: red flags underlined in place, the island alerts", { x: M, y: 5.85, w: 6.2, h: 0.26, fontSize: 12, color: P.ltext });
     const cw = 2.05;
     s.addImage({ path: A("card-sheet-as.png"), x: 6.85, y: 1.5, w: cw, h: cw / SHEET, objectName: "Assamese sheet", altText: "Explanation in Assamese" });
-    s.addImage({ path: A("card-sheet-qr.png"), x: 8.85, y: 1.5, w: cw, h: cw / SHEET, objectName: "QR sheet", altText: "This QR sends ₹5,000" });
+    s.addImage({ path: A("card-sheet-qr.png"), x: 8.85, y: 1.5, w: cw, h: cw / SHEET_QR, objectName: "QR sheet", altText: "This QR sends ₹5,000" });
     T(s, "Explains in অসমীয়া", { x: 6.85, y: 4.55, w: cw, h: 0.28, fontSize: 12.5, bold: true, color: "FFFFFF", align: "center" });
     T(s, "Reads the QR", { x: 8.85, y: 4.55, w: cw, h: 0.28, fontSize: 12.5, bold: true, color: "FFFFFF", align: "center" });
     s.addImage({ path: A("mark.png"), x: 11.25, y: 1.75, w: 0.6, h: 0.6, objectName: "mark", altText: "" });
     T(s, [{ text: "9 languages", options: { bold: true, color: "FFFFFF", fontSize: 18, breakLine: true } }, { text: "7 from the Northeast", options: { color: P.ltext, fontSize: 11, breakLine: true } }, { text: " ", options: { breakLine: true } },
-      { text: "13 / 13", options: { bold: true, color: "FFFFFF", fontSize: 18, breakLine: true } }, { text: "engine tests pass", options: { color: P.ltext, fontSize: 11, breakLine: true } }, { text: " ", options: { breakLine: true } },
+      { text: "14 / 14", options: { bold: true, color: "FFFFFF", fontSize: 18, breakLine: true } }, { text: "engine tests pass", options: { color: P.ltext, fontSize: 11, breakLine: true } }, { text: " ", options: { breakLine: true } },
       { text: "~8 s", options: { bold: true, color: "FFFFFF", fontSize: 18, breakLine: true } }, { text: "screenshot → verdict", options: { color: P.ltext, fontSize: 11 } }],
       { x: 11.0, y: 2.5, w: 1.75, h: 2.4 });
-    s.addImage({ path: A("card-paused.png"), x: 6.75, y: 4.95, w: 4.2, h: 4.2 / (1080 / 428), objectName: "Paused link", altText: "Paused. This link isn't what it seems." });
+    s.addImage({ path: A("card-paused.png"), x: 6.75, y: 4.95, w: 4.2, h: 4.2 / PAUSED, objectName: "Paused link", altText: "Paused. This link isn't what it seems." });
     T(s, [{ text: "Code:  ", options: { bold: true, color: P.coralLt } }, { text: "github.com/vxwshxl/pauseverify", options: { bold: true, color: "FFFFFF" } }], { x: M, y: 6.35, w: 8, h: 0.3, fontSize: 14 });
     s.addNotes("Supporting slide, if time allows: the extension on a real page, the explanation in Assamese, the QR truth, and a fake link paused before it opens.");
   }
