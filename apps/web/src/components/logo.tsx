@@ -1,14 +1,14 @@
 import Link from "next/link";
+import { MARK_PATH } from "@pv/island";
 import { cn } from "@/lib/utils";
 
+/** Pause stick + a play triangle soft enough to read as a "D": pause, then go. */
 export function Mark({ className }: { className?: string }) {
   return (
-    <span aria-hidden className={cn("grid size-9 place-items-center rounded-[11px] bg-brand", className)}>
-      <span className="flex gap-[3.5px]">
-        <i className="block h-3.5 w-[3.5px] rounded-full bg-white" />
-        <i className="block h-3.5 w-[3.5px] rounded-full bg-white" />
-      </span>
-    </span>
+    <svg aria-hidden viewBox="0 0 48 48" className={cn("size-9 shrink-0", className)}>
+      <rect width="48" height="48" rx="14" className="fill-brand" />
+      <g transform="translate(0.8 0)" fill="#fff"><rect x="10.4" y="13" width="5.2" height="22" rx="2.6" /><path d={MARK_PATH} /></g>
+    </svg>
   );
 }
 

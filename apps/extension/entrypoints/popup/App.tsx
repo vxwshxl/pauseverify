@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { ScanSearch, Search } from "lucide-react";
 import type { Lang } from "@pv/engine";
-import { LANG_NAMES } from "@pv/island";
+import { LANG_NAMES, Mark } from "@pv/island";
 import { API_URL } from "@/utils/api";
 import { DEFAULTS, getSettings, onSettings, setSettings, type Settings } from "@/utils/settings";
 
@@ -33,7 +33,7 @@ export default function App() {
   return (
     <div className="pv-root pp">
       <div className="pp-head">
-        <span className="pv-mark" aria-hidden><span><i /><i /></span></span>
+        <Mark />
         <div>
           <div className="pp-name">Pause &amp; Verify</div>
           <div className="pp-status"><span className="pv-dot" data-level={watching ? "safe" : "caution"} />{watching ? "Watching this page" : "Not watching this page"}</div>

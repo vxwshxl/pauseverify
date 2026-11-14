@@ -18,7 +18,8 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${display.variable} ${body.variable} ${mono.variable}`}>
-      <body className="flex min-h-dvh flex-col">
+      {/* Some browser extensions (e.g. VPN add-ons) write attributes into <body> before React hydrates. */}
+      <body className="flex min-h-dvh flex-col" suppressHydrationWarning>
           <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground">
             Skip to content
           </a>
