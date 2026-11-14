@@ -5,6 +5,7 @@ import { PrivacyDemo } from "./privacy-demo";
 export const metadata: Metadata = {
   title: "Privacy & security",
   description: "What Pause & Verify checks on your device, what leaves it (masked and encrypted), and what we keep: nothing.",
+  alternates: { canonical: "/privacy" },
 };
 
 const FACTS = [

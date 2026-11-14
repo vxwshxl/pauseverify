@@ -1,0 +1,22 @@
+# Pause & Verify
+
+> Pause & Verify is a free anti-scam assistant for India, built by Team Commit&Run (Veeshal D Bodosa, Mrinmoy Banikya, Deepjyoti Dey). A Chrome extension and website that spot scam warning signs in messages, links, screenshots and UPI QR codes, underline them where the person is reading, explain them in plain language in English, Hindi and seven Northeast languages, and show a safe way to check.
+
+Key facts:
+- Free for everyone. Funded by banks and fintechs (white-label inside their apps, about ₹2 per active user a month), colleges and companies (₹99 per seat a year), and district/CSR programmes. User data is never sold.
+- Scam detection runs on the user's device: urgency and threats, OTP/PIN/KYC requests, prizes and fees, "digital arrest", remote-access apps (AnyDesk), fake and look-alike links, the .bank.in rule for Indian banks, and UPI QR codes (shows who a QR pays and how much). These checks work offline.
+- Online parts: translation and read-aloud (Bhashini), answers to free-form questions (Sarvam AI), reading text in screenshots (Gemma 3 vision). Before anything is sent, OTPs, phone, card and account numbers and emails are masked. Nothing is stored; requests use HTTPS.
+- Languages: English, Hindi, Assamese, Bodo, Bengali, Manipuri (Meitei Mayek), Nepali, Khasi, Mizo.
+- Pages that discuss scams (news, bank safety pages, advice) are not treated as scams; only the example messages they quote are judged.
+- If someone already paid or shared an OTP: call 1930 (India's cyber-crime helpline) or report at https://cybercrime.gov.in.
+
+## Pages
+
+- [Home](https://pauseverify.vercel.app/): what it does, the scam patterns it knows, languages, FAQ
+- [Live demo](https://pauseverify.vercel.app/demo): a pretend inbox with real Indian scam patterns
+- [Check a message](https://pauseverify.vercel.app/check): paste text or a link, or upload a screenshot
+- [Privacy & security](https://pauseverify.vercel.app/privacy): what stays on the device, what is sent (masked), what is kept (nothing)
+
+## Source
+
+- [GitHub repository](https://github.com/vxwshxl/pauseverify)

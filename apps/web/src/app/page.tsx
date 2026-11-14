@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { Faq } from "@/components/faq";
+import { FAQ } from "@/lib/site";
 import { ArrowRight, Clock, EyeOff, Gift, KeyRound, Lock, Phone, QrCode, Siren, Users, Zap } from "lucide-react";
 import { HeroDemo } from "./hero-demo";
 
@@ -106,6 +108,13 @@ export default function Home() {
           </ol>
         </div>
       </section>
+
+      <Faq />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: FAQ.map(({ q, a }) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })),
+      }) }} />
 
       <section className="container-page pb-24">
         <div className="grid gap-8 rounded-[32px] bg-brand-subtle p-8 sm:p-12 lg:grid-cols-[1.3fr_1fr] lg:items-center">
