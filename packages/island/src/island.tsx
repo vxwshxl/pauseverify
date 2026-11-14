@@ -38,7 +38,15 @@ export interface IslandProps {
   alwaysAlert?: boolean;
   /** Where the island sits. "right" keeps it in the bottom-right corner, out of the way. */
   position?: "center" | "right";
+  /**
+   * Where the resting island was dragged to, as an offset from its home corner. Drag it (or
+   * Alt + arrow keys) so it never covers a site's own buttons; the extension saves it per site.
+   */
+  initialOffset?: Offset;
+  onOffsetChange?: (o: Offset) => void;
 }
+
+export type Offset = { x: number; y: number };
 
 // Native names. Seven Northeast languages, all served by Bhashini.
 export const LANG_NAMES: Record<Lang, string> = {
@@ -128,6 +136,14 @@ export function Island(props: IslandProps) {
   // Idle, the island is a small circle; hovering (or tapping) peeks the full pill.
   const [peek, setPeek] = useState(false);
   const strings = useMemo(() => collect(analysis), [analysis]);
+  const dock = useRef<HTMLDivElement>(null);
+  const [offset, setOffset] = useState<Offset>(props.initialOffset ?? { x: 0, y: 0 });
+  const drag = useRef<{ x: number; y: number; ox: number; oy: number; moved: boolean } | null>(null);
+  const justDragged = useRef(false);
+  const offsetRef = useRef(offset);
+  offsetRef.current = offset;
+  const [dragging, setDragging] = useState(false);
+  useEffect(() => { if (props.initialOffset) setOffset(props.initialOffset); }, [props.initialOffset]);
   const { t, loading } = useTranslations(lang, strings, translate);
 
   useEffect(() => { if (props.lang) setLangState(props.lang); }, [props.lang]);
@@ -177,31 +193,111 @@ export function Island(props: IslandProps) {
   const warn = !!analysis && analysis.level !== "safe";
   const compact = (mode === "idle" && !peek) || mode === "scanning";
   const viewKey = mode === "idle" ? (peek ? "idle-pill" : "idle-dot") : mode;
+  const isIsland = mode === "idle" && !peek && warn;
+  // Only the resting island moves; the alert and sheet open in the corner so they always fit.
+  const movable = !inline && mode === "idle";
+
+  /** Keep the island fully on screen after a drag, a key press or a window resize. */
+  const clampTo = (o: Offset): Offset => {
+    const el = shell.current, d = dock.current;
+    if (!el || !d) return o;
+    // Measured from layout (offsetLeft/Width), not getBoundingClientRect: the shell's own layout
+    // animation shifts it mid-drag. The live offset comes from a ref because commit() runs in
+    // listeners created when the drag started.
+    const dr = d.getBoundingClientRect();
+    const homeX = dr.left - offsetRef.current.x + el.offsetLeft, homeY = dr.top - offsetRef.current.y + el.offsetTop;
+    const m = 8;
+    return {
+      x: Math.round(Math.min(innerWidth - m - el.offsetWidth - homeX, Math.max(m - homeX, o.x))),
+      y: Math.round(Math.min(innerHeight - m - el.offsetHeight - homeY, Math.max(m - homeY, o.y))),
+    };
+  };
+  const commit = (o: Offset) => { const c = clampTo(o); setOffset(c); props.onOffsetChange?.(c); };
+
+  useEffect(() => {
+    if (!movable) return;
+    const onResize = () => setOffset((o) => clampTo(o));
+    addEventListener("resize", onResize);
+    return () => removeEventListener("resize", onResize);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- clampTo reads refs
+  }, [movable]);
+
+  const dragHandlers = movable ? {
+    // Moves are followed on the window: the pointer leaves a 56px circle on the first frame.
+    // (Pointer capture would also work, but it retargets the click away from the buttons inside.)
+    onPointerDown: (e: React.PointerEvent) => {
+      if (e.button !== 0) return;
+      const start = { x: e.clientX, y: e.clientY, ox: offsetRef.current.x, oy: offsetRef.current.y, moved: false };
+      drag.current = start;
+      const move = (ev: PointerEvent) => {
+        const dx = ev.clientX - start.x, dy = ev.clientY - start.y;
+        if (!start.moved && Math.hypot(dx, dy) < 5) return;
+        if (!start.moved) { start.moved = true; setDragging(true); setPeek(false); }
+        ev.preventDefault();
+        setOffset({ x: start.ox + dx, y: start.oy + dy });
+      };
+      const up = () => {
+        removeEventListener("pointermove", move, true);
+        removeEventListener("pointerup", up, true);
+        removeEventListener("pointercancel", up, true);
+        drag.current = null;
+        if (!start.moved) return;
+        setDragging(false);
+        justDragged.current = true;
+        setTimeout(() => { justDragged.current = false; }, 0);
+        commit(offsetRef.current);
+      };
+      addEventListener("pointermove", move, true);
+      addEventListener("pointerup", up, true);
+      addEventListener("pointercancel", up, true);
+    },
+    // A drag must not also count as a tap that opens the island.
+    onClickCapture: (e: React.MouseEvent) => { if (justDragged.current) { e.stopPropagation(); e.preventDefault(); } },
+    onKeyDown: (e: React.KeyboardEvent) => {
+      const step = e.shiftKey ? 64 : 24;
+      const move: Record<string, [number, number]> = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] };
+      if (!e.altKey || !move[e.key]) return;
+      e.preventDefault();
+      commit({ x: offset.x + move[e.key]![0], y: offset.y + move[e.key]![1] });
+    },
+  } : {};
 
   return (
     <TCtx.Provider value={{ t, lang, loading }}>
       <MotionConfig reducedMotion="user">
         <div className="pv-root" lang={lang}>
-          <div className="pv-dock" data-inline={inline ? "true" : "false"} data-pos={props.position ?? "center"}>
+          <div className="pv-dock" ref={dock} data-inline={inline ? "true" : "false"} data-pos={props.position ?? "center"}
+            data-dragging={dragging ? "true" : undefined}
+            style={movable && (offset.x || offset.y) ? { translate: `${offset.x}px ${offset.y}px` } : undefined}>
             <motion.div
               ref={shell}
               layout
+              // While dragging, follow the pointer 1:1; a layout spring here made it lag and wobble.
+              layoutDependency={dragging ? "drag" : undefined}
               initial={false}
               transition={SPRING}
               className="pv-shell"
               data-mode={mode}
               data-compact={compact}
-              data-variant={mode === "idle" && !peek && warn ? "island" : undefined}
+              data-variant={isIsland ? "island" : undefined}
               style={{ borderRadius: compact ? 28 : RADIUS[mode] }}
+              // The colour morphs with the shape: dark only once it has become the small warning pill.
+              animate={{ backgroundColor: isIsland ? "#1c1b1a" : "#ffffff" }}
               onMouseEnter={() => mode === "idle" && !warn && setPeek(true)}
               onMouseLeave={() => setPeek(false)}
+              {...dragHandlers}
+              data-movable={movable || undefined}
+              title={movable ? "Drag to move · Alt + arrow keys" : undefined}
               role={mode === "sheet" ? "dialog" : "region"}
-              aria-label="Pause & Verify"
+              aria-label={movable ? "Pause & Verify. Drag, or press Alt and the arrow keys, to move it" : "Pause & Verify"}
               aria-live="polite"
             >
               <AnimatePresence mode="popLayout" initial={false}>
                 <motion.div
                   key={viewKey}
+                  // Scale-corrects the content while the shell morphs (circle ↔ squircle), so it
+                  // doesn't stretch and wobble mid-animation.
+                  layout="position"
                   initial={{ opacity: 0, scale: 0.98 }}
                   animate={{ opacity: 1, scale: 1, transition: { duration: 0.18, delay: 0.06 } }}
                   exit={{ opacity: 0, scale: 0.98, transition: { duration: 0.1 } }}

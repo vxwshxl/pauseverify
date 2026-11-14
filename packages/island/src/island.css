@@ -796,7 +796,8 @@
 .pv-compose { border-top: 0; }
 
 /* Warning pill: the resting state when something worrying was found. */
-.pv-shell[data-variant="island"] { background: #1c1b1a; box-shadow: 0 8px 24px rgb(0 0 0 / 0.28); }
+/* Background is animated by Motion with the shape (island.tsx); flipping it here flashed a big black box. */
+.pv-shell[data-variant="island"] { box-shadow: 0 8px 24px rgb(0 0 0 / 0.28); }
 .pv-wpill {
   display: flex; align-items: center; gap: 10px;
   height: 48px; padding: 0 18px 0 16px;
@@ -812,3 +813,9 @@
 .pv-mark { padding: 0; overflow: hidden; }
 .pv-mark svg { display: block; }
 .pv-dotbtn .pv-mark { border-radius: 999px; }
+
+/* ── Moving the resting island ───────────────────────────────────────────
+   Dragged with the pointer or Alt + arrows. No CSS transition on the dock: the shell's own layout
+   spring carries it between the chosen spot and the corner — two animations at once jittered. */
+.pv-shell[data-movable] { touch-action: none; cursor: grab; }
+.pv-shell[data-movable]:active { cursor: grabbing; }

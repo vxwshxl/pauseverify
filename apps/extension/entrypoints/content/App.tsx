@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ShieldAlert, TriangleAlert, X } from "lucide-react";
 import { analyze, analyzeUrl, type Analysis, type Lang, type LinkReport } from "@pv/engine";
-import { Island, LookOverlay, createServices, type Rect } from "@pv/island";
+import { Island, LookOverlay, createServices, type Offset, type Rect } from "@pv/island";
 import { relayPost, type BgMessage } from "@/utils/api";
-import { getSettings, onSettings, setSettings, type Settings } from "@/utils/settings";
+import { getOffset, getSettings, onSettings, setOffset, setSettings, type Settings } from "@/utils/settings";
 import { clearPaint, paint, scan, textInRect, visible, type Found } from "./scanner";
 import { crop, loadImage, readQr, toJpeg } from "./vision";
 
@@ -34,6 +34,7 @@ export function App({ host }: { host: HTMLElement }) {
   const [looking, setLooking] = useState(false);
   const [pause, setPause] = useState<LinkPause | null>(null);
   const [tip, setTip] = useState<Tip | null>(null);
+  const [offset, setOffsetState] = useState<Offset>();
   const dismissed = useRef(new Set<string>());
   const shown = useRef<string | null>(null);
 
@@ -41,6 +42,7 @@ export function App({ host }: { host: HTMLElement }) {
 
   useEffect(() => {
     getSettings().then(setLocal);
+    getOffset(location.hostname).then(setOffsetState);
     return onSettings(setLocal);
   }, []);
 
@@ -187,6 +189,8 @@ export function App({ host }: { host: HTMLElement }) {
           alwaysAlert={asked}
           context="this page"
           position="right"
+          initialOffset={offset}
+          onOffsetChange={(o) => setOffset(location.hostname, o)}
           onLook={() => setLooking(true)}
           onDismiss={() => { if (messageText) dismissed.current.add(messageText); }}
           lang={settings.lang}
