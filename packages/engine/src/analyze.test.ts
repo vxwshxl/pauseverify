@@ -93,3 +93,10 @@ test("a fact-check page is opened and found safe", () => {
   assert.equal(a.level, "safe", `score ${a.score}: ${a.flags.map((f) => f.kind)}`);
   assert.match(a.links[0]!.reason, /opened it safely.*since 2013/);
 });
+
+test("a link to a bare IP address inside a message is found and flagged", () => {
+  const a = analyze({ text: "Your electricity will be disconnected tonight. Pay now: http://103.21.4.9/pay" });
+  assert.equal(a.links[0]?.verdict, "suspicious");
+  assert.equal(a.level, "high", `score ${a.score}`);
+  assert.equal(analyze({ text: "Update to version 1.2.3.4 today" }).links.length, 0);
+});

@@ -12,7 +12,8 @@ const RISKY_TLDS = new Set([
 ]);
 
 // Bare domains too ("sbi-kyc.xyz/update"), not only http(s) URLs. tldts validates the suffix.
-const URL_RE = /(?<![@\w.-])((?:https?:\/\/)?(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,24}(?::\d{2,5})?(?:\/[^\s<>"'”’)\]]*)?)/gi;
+// Bare IP addresses count only with http(s):// in front, so "version 1.2.3.4" isn't read as a link.
+const URL_RE = /(?<![@\w.-])((?:https?:\/\/\d{1,3}(?:\.\d{1,3}){3}|(?:https?:\/\/)?(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,24})(?::\d{2,5})?(?:\/[^\s<>"'”’)\]]*)?)/gi;
 
 // Characters scammers swap in to make a domain look right at a glance.
 function unconfuse(s: string) {
