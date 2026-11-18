@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { COMBOS, LINK_WEIGHT, RULES, THRESHOLDS, WEIGHTS } from "@pv/engine";
+import { BRAND_TOKENS, COMBOS, DIRECTORY, LINK_WEIGHT, RISKY_TLDS, RULES, SHORTENERS, SWAPS, THRESHOLDS, WEIGHTS } from "@pv/engine";
 import { ScoreCalculator } from "./calculator";
 
 export const metadata: Metadata = {
@@ -40,6 +40,17 @@ const SAFE = [
   ["Menus are labels, not messages", "Navigation like a bank’s “Update KYC” menu item is skipped."],
 ];
 
+// Group a rule's words by script so each language reads as its own row.
+const SCRIPTS: [string, (w: string) => boolean][] = [
+  ["English & Hinglish", (w) => !/[ऀ-৿]/.test(w)],
+  ["Hindi", (w) => /[ऀ-ॿ]/.test(w)],
+  ["Assamese", (w) => /[ঀ-৿]/.test(w)],
+];
+
+const REAL_SITES = DIRECTORY.filter((e) => e.domains.length > 0);
+const BRAND_WORDS = [...new Set(BRAND_TOKENS.map((t) => t.token))];
+
+const chip = "rounded-full bg-subtle px-2.5 py-1 text-sm";
 const th = "px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground";
 const td = "px-4 py-3 align-top";
 
@@ -73,7 +84,7 @@ export default function ScoringPage() {
 
         <section aria-labelledby="words">
           <h2 id="words" className="font-display text-[30px] font-semibold tracking-[-0.02em]">Warning signs in the words</h2>
-          <p className="mt-2 max-w-2xl text-secondary-fg">Matched in English, Hinglish, Hindi, Assamese and Bodo. Each sign counts once, however many times it appears.</p>
+          <p className="mt-2 max-w-2xl text-secondary-fg">Matched in English, Hinglish, Hindi and Assamese. Each sign counts once, however many times it appears.</p>
           <div className="mt-6 overflow-x-auto rounded-[22px] border border-border">
             <table className="w-full min-w-[720px] text-[15px]">
               <thead className="bg-subtle"><tr><th className={th}>Sign</th><th className={th}>Why it’s a warning</th><th className={th}>Examples that trigger it</th><th className={`${th} text-right`}>Points</th></tr></thead>
@@ -88,6 +99,41 @@ export default function ScoringPage() {
                 ))}
               </tbody>
             </table>
+          </div>
+        </section>
+
+        <section aria-labelledby="wordlist">
+          <h2 id="wordlist" className="font-display text-[30px] font-semibold tracking-[-0.02em]">Every word we look for</h2>
+          <p className="mt-2 max-w-2xl text-secondary-fg">
+            The full list, read straight from the engine. Capital letters don’t matter, small words like “your” and “the” can be left out, ’ and &apos; count the same, and numbers can be any amount or time.
+          </p>
+          <div className="mt-6 grid gap-4 lg:grid-cols-2">
+            {[...RULES].sort((a, b) => b.weight - a.weight).map((r) => (
+              <div key={r.kind} className="rounded-[22px] border border-border p-5">
+                <div className="flex items-baseline justify-between gap-4">
+                  <h3 className="text-[17px] font-semibold">{r.title}</h3>
+                  <span className="font-mono font-semibold">+{r.weight}</span>
+                </div>
+                {SCRIPTS.map(([lang, inScript]) => {
+                  const words = r.words.filter(inScript);
+                  if (!words.length) return null;
+                  return (
+                    <div key={lang} className="mt-4">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{lang}</p>
+                      <ul className="mt-2 flex flex-wrap gap-1.5">
+                        {words.map((w) => <li key={w} className={chip}>{w}</li>)}
+                      </ul>
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 rounded-[22px] bg-subtle p-5 text-[15px]">
+            <p className="font-semibold">What the word list can’t do</p>
+            <p className="mt-1 text-secondary-fg">
+              It matches phrases, not meaning. A scam that says the same thing in completely different words won’t trigger a phrase. That’s why links, QR codes and the pages they open are checked separately, by what they really are, not by how the message is worded.
+            </p>
           </div>
         </section>
 
@@ -117,6 +163,51 @@ export default function ScoringPage() {
           </div>
         </section>
 
+        <section aria-labelledby="linklist">
+          <h2 id="linklist" className="font-display text-[30px] font-semibold tracking-[-0.02em]">Every link check</h2>
+          <p className="mt-2 max-w-2xl text-secondary-fg">These run on your device, with no internet needed. Opening a link on our server is an extra step, only when you ask to check it.</p>
+
+          <div className="mt-6 overflow-x-auto rounded-[22px] border border-border">
+            <table className="w-full min-w-[560px] text-[15px]">
+              <thead className="bg-subtle"><tr><th className={th}>Real websites we know</th><th className={th}>Their addresses</th></tr></thead>
+              <tbody className="divide-y divide-border">
+                {REAL_SITES.map((e) => (
+                  <tr key={e.id}><td className={`${td} font-semibold`}>{e.name}</td><td className={`${td} font-mono text-sm text-secondary-fg`}>{e.domains.join(" · ")}</td></tr>
+                ))}
+                <tr><td className={`${td} font-semibold`}>Any government website</td><td className={`${td} font-mono text-sm text-secondary-fg`}>*.gov.in · *.nic.in</td></tr>
+                <tr><td className={`${td} font-semibold`}>Any real Indian bank</td><td className={`${td} font-mono text-sm text-secondary-fg`}>*.bank.in (only banks can register it)</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div className="mt-4 grid gap-4 lg:grid-cols-2">
+            <div className="rounded-[22px] border border-border p-5">
+              <h3 className="text-[17px] font-semibold">Brand names hidden in other addresses</h3>
+              <p className="mt-1 text-sm text-secondary-fg">Found inside an address that isn’t theirs (sbi-kyc-verify.xyz), or one or two letters off (flipkartt.com): look-alike, +{LINK_WEIGHT.lookalike}.</p>
+              <ul className="mt-3 flex flex-wrap gap-1.5">{BRAND_WORDS.map((w) => <li key={w} className={`${chip} font-mono`}>{w}</li>)}</ul>
+            </div>
+            <div className="rounded-[22px] border border-border p-5">
+              <h3 className="text-[17px] font-semibold">Swapped characters</h3>
+              <p className="mt-1 text-sm text-secondary-fg">Undone before comparing, so amaz0n.in and paytrn.com read as amazon and paytm.</p>
+              <ul className="mt-3 flex flex-wrap gap-1.5">{SWAPS.map(([from, to]) => <li key={from} className={`${chip} font-mono`}>{from} → {to}</li>)}</ul>
+            </div>
+            <div className="rounded-[22px] border border-border p-5">
+              <h3 className="text-[17px] font-semibold">Link shorteners</h3>
+              <p className="mt-1 text-sm text-secondary-fg">They hide where a link really goes: +{LINK_WEIGHT.shortener}.</p>
+              <ul className="mt-3 flex flex-wrap gap-1.5">{[...SHORTENERS].map((w) => <li key={w} className={`${chip} font-mono`}>{w}</li>)}</ul>
+            </div>
+            <div className="rounded-[22px] border border-border p-5">
+              <h3 className="text-[17px] font-semibold">Cheap throwaway endings</h3>
+              <p className="mt-1 text-sm text-secondary-fg">Seen again and again in Indian SMS scams: suspicious, +{LINK_WEIGHT.suspicious}.</p>
+              <ul className="mt-3 flex flex-wrap gap-1.5">{[...RISKY_TLDS].map((w) => <li key={w} className={`${chip} font-mono`}>.{w}</li>)}</ul>
+            </div>
+          </div>
+          <div className="mt-4 rounded-[22px] bg-subtle p-5 text-[15px]">
+            <p className="font-semibold">Also suspicious (+{LINK_WEIGHT.suspicious})</p>
+            <p className="mt-1 text-secondary-fg">A bare number address like http://103.21.4.9 · letters from another alphabet that look like ours (addresses starting xn--) · a long address with two or more hyphens.</p>
+          </div>
+        </section>
+
         <section aria-labelledby="combos">
           <h2 id="combos" className="font-display text-[30px] font-semibold tracking-[-0.02em]">Combinations that make it worse</h2>
           <p className="mt-2 max-w-2xl text-secondary-fg">Some signs together are the shape of a scam, so each pair adds a bonus.</p>
@@ -143,7 +234,7 @@ export default function ScoringPage() {
           <div className="mt-5 grid gap-6 text-[15px] leading-relaxed text-white/80 sm:grid-cols-3">
             <p><strong className="text-white">Explainable.</strong> Every point points at a word or a link you can see. Nobody has to trust a model’s hunch.</p>
             <p><strong className="text-white">Instant and private.</strong> It runs in milliseconds inside your browser, offline, without sending your messages anywhere.</p>
-            <p><strong className="text-white">Testable.</strong> 22 automated tests pin the behaviour: every scam sample high risk, genuine OTPs and real websites safe.</p>
+            <p><strong className="text-white">Testable.</strong> 32 automated tests pin the behaviour: every scam sample high risk, genuine OTPs and real websites safe.</p>
           </div>
           <p className="mt-6 text-sm text-white/60">AI still helps where it’s good: reading screenshots, translating into nine languages, and answering questions in plain words. <Link href="/privacy" className="underline">What leaves your device →</Link></p>
         </section>

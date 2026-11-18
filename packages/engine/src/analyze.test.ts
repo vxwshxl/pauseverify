@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { analyze } from "./analyze.ts";
+import { analyze, collect } from "./analyze.ts";
+import { RULES } from "./rules.ts";
 import { analyzeUrl } from "./links.ts";
 import { SAMPLES } from "./samples.ts";
 
@@ -99,4 +100,20 @@ test("a link to a bare IP address inside a message is found and flagged", () => 
   assert.equal(a.links[0]?.verdict, "suspicious");
   assert.equal(a.level, "high", `score ${a.score}`);
   assert.equal(analyze({ text: "Update to version 1.2.3.4 today" }).links.length, 0);
+});
+
+// The scoring page lists every word and example; each must really trigger its own rule.
+for (const rule of RULES) {
+  test(`every listed word triggers “${rule.title}”`, () => {
+    for (const w of [...rule.examples, ...rule.words]) {
+      assert.ok(collect(`Hello ${w} thanks`, rule.patterns).length > 0, `${rule.kind}: “${w}” does not match`);
+    }
+  });
+}
+
+test("curly apostrophes and multi-digit amounts are matched", () => {
+  const a = analyze({ text: "Don’t tell anyone. Pay ₹99 now." });
+  assert.ok(a.flags.some((f) => f.kind === "secrecy"));
+  assert.ok(a.flags.some((f) => f.kind === "payment"));
+  assert.equal(a.flags.find((f) => f.kind === "secrecy")?.spans[0]?.text, "Don’t tell anyone");
 });

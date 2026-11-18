@@ -1,6 +1,6 @@
 import { DIRECTORY, HELP } from "./directory.ts";
 import { extractLinks, analyzeUrl } from "./links.ts";
-import { ABOUT_SCAMS, FAKE_REASSURANCE, OTP_DELIVERY, RULES } from "./rules.ts";
+import { ABOUT_SCAMS, FAKE_REASSURANCE, OTP_DELIVERY, RULES, straightQuotes } from "./rules.ts";
 import { parseUpi } from "./upi.ts";
 import type { Analysis, Entity, Flag, LinkReport, PageFacts, RiskLevel, ScorePart, Span } from "./types.ts";
 
@@ -22,11 +22,13 @@ export const COMBOS: { label: string; points: number; when: (has: Has, badLink: 
   { label: "A login form on a brand-new or redirected site, or a bad link", points: 15, when: (has, bad) => has("fake_login") && (has("new_domain") || has("redirect") || bad) },
 ];
 
-function collect(text: string, patterns: RegExp[]): Span[] {
+export function collect(text: string, patterns: RegExp[]): Span[] {
   const spans: Span[] = [];
+  // Phones type ’ for an apostrophe; the rules are written with '. Same length, so spans still line up.
+  const plain = straightQuotes(text);
   for (const re of patterns) {
     re.lastIndex = 0;
-    for (const m of text.matchAll(re)) spans.push({ start: m.index!, end: m.index! + m[0].length, text: m[0] });
+    for (const m of plain.matchAll(re)) spans.push({ start: m.index!, end: m.index! + m[0].length, text: text.slice(m.index!, m.index! + m[0].length) });
   }
   return spans.sort((a, b) => a.start - b.start);
 }
@@ -49,7 +51,8 @@ export interface AnalyzeInput {
 }
 
 /** Does this text discuss scams rather than run one? */
-export function talksAboutScams(text: string): boolean {
+export function talksAboutScams(raw: string): boolean {
+  const text = straightQuotes(raw);
   if (FAKE_REASSURANCE.test(text)) return false;
   return ABOUT_SCAMS.some((re) => re.test(text));
 }
@@ -68,7 +71,7 @@ export function quotedRanges(text: string): [number, number][] {
 
 export function analyze({ text, qr, seen, about, page }: AnalyzeInput): Analysis {
   const flags: Flag[] = [];
-  const otpDelivery = OTP_DELIVERY.test(text);
+  const otpDelivery = OTP_DELIVERY.test(straightQuotes(text));
   // Advice and news about scams mention OTPs, AnyDesk and "account blocked" too. There, only the
   // messages they quote count: "Change your net banking password" is advice, not a request.
   const aboutScams = !otpDelivery && (!!about || talksAboutScams(text));

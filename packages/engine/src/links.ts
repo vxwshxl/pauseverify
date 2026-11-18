@@ -2,12 +2,12 @@ import { parse } from "tldts";
 import { DIRECTORY } from "./directory.ts";
 import type { Entity, LinkReport, Span } from "./types.ts";
 
-const SHORTENERS = new Set([
+export const SHORTENERS = new Set([
   "bit.ly", "tinyurl.com", "t.ly", "cutt.ly", "rb.gy", "is.gd", "goo.gl", "shorturl.at", "tiny.cc", "ow.ly", "rebrand.ly", "t.co", "s.id", "v.gd",
 ]);
 
 // Cheap, throwaway TLDs that turn up again and again in Indian SMS phishing.
-const RISKY_TLDS = new Set([
+export const RISKY_TLDS = new Set([
   "xyz", "top", "click", "icu", "buzz", "live", "online", "site", "info", "rest", "cam", "sbs", "cfd", "vip", "monster", "quest", "lol", "shop", "support", "work", "link", "bond", "cyou", "today",
 ]);
 
@@ -15,18 +15,13 @@ const RISKY_TLDS = new Set([
 // Bare IP addresses count only with http(s):// in front, so "version 1.2.3.4" isn't read as a link.
 const URL_RE = /(?<![@\w.-])((?:https?:\/\/\d{1,3}(?:\.\d{1,3}){3}|(?:https?:\/\/)?(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,24})(?::\d{2,5})?(?:\/[^\s<>"'”’)\]]*)?)/gi;
 
-// Characters scammers swap in to make a domain look right at a glance.
+/** Characters scammers swap in to make a domain look right at a glance: [what they type, what it imitates]. */
+export const SWAPS: [string, string][] = [
+  ["rn", "m"], ["vv", "w"], ["0", "o"], ["1", "l"], ["!", "l"], ["|", "l"], ["3", "e"], ["5", "s"], ["4", "a"], ["@", "a"],
+];
+
 function unconfuse(s: string) {
-  return s
-    .toLowerCase()
-    .replace(/rn/g, "m")
-    .replace(/vv/g, "w")
-    .replace(/0/g, "o")
-    .replace(/[1!|]/g, "l")
-    .replace(/3/g, "e")
-    .replace(/5/g, "s")
-    .replace(/4/g, "a")
-    .replace(/@/g, "a");
+  return SWAPS.reduce((out, [from, to]) => out.replaceAll(from, to), s.toLowerCase());
 }
 
 function editDistance(a: string, b: string) {
@@ -40,7 +35,7 @@ function editDistance(a: string, b: string) {
 }
 
 /** Brand words to look for inside a suspicious domain: "sbi", "hdfcbank", "amazon"… */
-const BRAND_TOKENS: { token: string; entity: Entity }[] = DIRECTORY.flatMap((e) =>
+export const BRAND_TOKENS: { token: string; entity: Entity }[] = DIRECTORY.flatMap((e) =>
   e.domains
     .map((d) => d.split(".")[0]!)
     .filter((t) => t.length >= 3 && t !== "google")
